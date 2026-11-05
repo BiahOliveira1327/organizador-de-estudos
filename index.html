@@ -1,0 +1,5226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Estudos</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        :root {
+            --roxo: #6d28d9;
+            --roxo-escuro: #4c1d95;
+            --roxo-claro: #8b5cf6;
+            --roxo-suave: #f3e8ff;
+            --fundo: #f6f7fb;
+            --branco: #ffffff;
+            --texto: #1f2937;
+            --texto-secundario: #6b7280;
+            --borda: #e5e7eb;
+            --verde: #16a34a;
+            --vermelho: #dc2626;
+        }
+
+        body {
+            background: var(--fundo);
+            color: var(--texto);
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #4c1d95, #6d28d9);
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            padding: 25px 16px;
+            overflow-y: auto;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 21px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            opacity: .75;
+            margin-top: 5px;
+        }
+
+        .menu-titulo {
+            font-size: 11px;
+            text-transform: uppercase;
+            opacity: .55;
+            margin: 20px 12px 8px;
+        }
+
+        .menu button {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: white;
+            text-align: left;
+            padding: 12px;
+            border-radius: 9px;
+            margin-bottom: 4px;
+            transition: .2s;
+        }
+
+        .menu button:hover,
+        .menu button.ativo {
+            background: rgba(255,255,255,.16);
+        }
+
+        .main {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+        }
+
+        .topbar {
+            height: 72px;
+            background: white;
+            border-bottom: 1px solid var(--borda);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .pesquisa {
+            width: 320px;
+        }
+
+        .pesquisa input {
+            width: 100%;
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            padding: 11px 14px;
+            outline: none;
+        }
+
+        .perfil-topo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--roxo-suave);
+            color: var(--roxo);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .conteudo {
+            padding: 30px;
+            max-width: 1500px;
+            margin: auto;
+        }
+
+        .tela {
+            display: none;
+        }
+
+        .tela.ativa {
+            display: block;
+        }
+
+        .titulo {
+            margin-bottom: 25px;
+        }
+
+        .titulo h2 {
+            font-size: 27px;
+            margin-bottom: 6px;
+        }
+
+        .titulo p {
+            color: var(--texto-secundario);
+        }
+
+        .boas-vindas {
+            background: linear-gradient(135deg, #4c1d95, #7c3aed);
+            color: white;
+            padding: 30px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+        }
+
+        .boas-vindas h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .boas-vindas p {
+            opacity: .85;
+        }
+
+        .cards-estatisticas {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .estatistica {
+            background: white;
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .estatistica span {
+            color: var(--texto-secundario);
+            font-size: 13px;
+        }
+
+        .estatistica strong {
+            display: block;
+            color: var(--roxo);
+            font-size: 28px;
+            margin-top: 8px;
+        }
+
+        .grade {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            margin-bottom: 17px;
+        }
+
+        .acoes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .botao-acao {
+            border: 1px solid var(--borda);
+            background: white;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: left;
+            transition: .2s;
+        }
+
+        .botao-acao:hover {
+            border-color: var(--roxo-claro);
+            transform: translateY(-2px);
+        }
+
+        .botao-acao strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .botao-acao small {
+            color: var(--texto-secundario);
+        }
+
+        .formulario {
+            display: grid;
+            gap: 15px;
+        }
+
+        .campo {
+            display: grid;
+            gap: 7px;
+        }
+
+        .campo label {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .campo input,
+        .campo select,
+        .campo textarea {
+            width: 100%;
+            border: 1px solid var(--borda);
+            border-radius: 9px;
+            padding: 12px;
+            outline: none;
+            background: white;
+        }
+
+        .campo textarea {
+            min-height: 180px;
+            resize: vertical;
+        }
+
+        .campo input:focus,
+        .campo select:focus,
+        .campo textarea:focus {
+            border-color: var(--roxo);
+        }
+
+        .linha {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .botao {
+            background: var(--roxo);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-weight: bold;
+            transition: .2s;
+        }
+
+        .botao:hover {
+            background: var(--roxo-escuro);
+        }
+
+        .botao-secundario {
+            background: var(--roxo-suave);
+            color: var(--roxo);
+        }
+
+        .botao-perigo {
+            background: #fee2e2;
+            color: var(--vermelho);
+        }
+
+        .lista {
+            display: grid;
+            gap: 10px;
+        }
+
+        .item {
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .item-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .item-info small {
+            color: var(--texto-secundario);
+        }
+
+        .acoes-item {
+            display: flex;
+            gap: 7px;
+        }
+
+        .barra {
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .barra div {
+            height: 100%;
+            background: linear-gradient(90deg, var(--roxo-escuro), var(--roxo-claro));
+            border-radius: 20px;
+        }
+
+        .grade-recursos {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .recurso {
+            background: white;
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .recurso h3 {
+            color: var(--roxo);
+            margin-bottom: 8px;
+        }
+
+        .recurso p {
+            color: var(--texto-secundario);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            flex: 1;
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--roxo-suave);
+            color: var(--roxo);
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+
+        .redacao-header {
+            background: linear-gradient(135deg, #4c1d95, #7c3aed);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .redacao-header h3 {
+            margin-bottom: 7px;
+        }
+
+        .contador {
+            text-align: right;
+            color: var(--texto-secundario);
+            font-size: 13px;
+            margin-top: 7px;
+        }
+
+        .resultado-redacao {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .resultado-nota {
+            text-align: center;
+            background: var(--roxo-suave);
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+
+        .resultado-nota span {
+            display: block;
+            color: var(--texto-secundario);
+        }
+
+        .resultado-nota strong {
+            display: block;
+            font-size: 52px;
+            color: var(--roxo);
+            margin-top: 5px;
+        }
+
+        .competencias {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .competencia {
+            border: 1px solid var(--borda);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .competencia strong {
+            display: block;
+            color: var(--roxo);
+            font-size: 22px;
+            margin-top: 7px;
+        }
+
+        .feedback {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feedback-box {
+            border-radius: 12px;
+            padding: 18px;
+            background: #f9fafb;
+            border: 1px solid var(--borda);
+        }
+
+        .feedback-box h4 {
+            margin-bottom: 10px;
+        }
+
+        .feedback-box ul {
+            padding-left: 18px;
+            color: var(--texto-secundario);
+            line-height: 1.7;
+        }
+
+        .timer {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .timer strong {
+            font-size: 60px;
+            color: var(--roxo);
+            display: block;
+            margin: 20px;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(17,24,39,.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal.ativo {
+            display: flex;
+        }
+
+        .modal-conteudo {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 450px;
+            padding: 25px;
+        }
+
+        .notificacao {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            background: #111827;
+            color: white;
+            padding: 14px 18px;
+            border-radius: 9px;
+            display: none;
+            z-index: 200;
+        }
+
+        .notificacao.mostrar {
+            display: block;
+        }
+
+        .vazio {
+            color: var(--texto-secundario);
+            text-align: center;
+            padding: 25px;
+        }
+
+        .capa {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #3b0764, #6d28d9, #8b5cf6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+        }
+
+        .capa-conteudo {
+            text-align: center;
+            max-width: 600px;
+            padding: 30px;
+        }
+
+        .capa h1 {
+            font-size: 52px;
+            margin-bottom: 15px;
+        }
+
+        .capa p {
+            font-size: 18px;
+            opacity: .9;
+            margin-bottom: 30px;
+        }
+
+        .capa button {
+            background: white;
+            color: var(--roxo);
+            border: none;
+            padding: 14px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .oculto {
+            display: none !important;
+        }
+
+        @media(max-width: 1100px) {
+            .cards-estatisticas {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grade-recursos {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .competencias {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media(max-width: 800px) {
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+                width: calc(100% - 210px);
+            }
+
+            .grade,
+            .feedback {
+                grid-template-columns: 1fr;
+            }
+
+            .acoes {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media(max-width: 600px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .app {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .topbar {
+                padding: 15px;
+                height: auto;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .pesquisa {
+                width: 100%;
+            }
+
+            .conteudo {
+                padding: 15px;
+            }
+
+            .cards-estatisticas,
+            .grade-recursos,
+            .linha {
+                grid-template-columns: 1fr;
+            }
+
+            .competencias {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .acoes {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="capa" id="capa">
+        <div class="capa-conteudo">
+            <h1>Organizador de Estudos</h1>
+            <p>Planeje seus estudos, acompanhe seu desempenho e organize seu caminho para alcançar seus objetivos.</p>
+            <button onclick="entrarAplicacao()">Começar agora</button>
+        </div>
+    </div>
+
+    <div class="app">
+
+        <aside class="sidebar">
+
+            <div class="logo">
+                <h1>Organizador</h1>
+                <p>Seu espaço de estudos</p>
+            </div>
+
+            <div class="menu">
+
+                <div class="menu-titulo">Principal</div>
+
+                <button class="ativo" onclick="abrirTela('inicio', this)">Visão geral</button>
+                <button onclick="abrirTela('perfil', this)">Meu perfil</button>
+                <button onclick="abrirTela('plano', this)">Plano de estudos</button>
+                <button onclick="abrirTela('agenda', this)">Agenda</button>
+                <button onclick="abrirTela('metas', this)">Metas</button>
+
+                <div class="menu-titulo">Estudos</div>
+
+                <button onclick="abrirTela('questoes', this)">Questões</button>
+                <button onclick="abrirTela('revisoes', this)">Revisões</button>
+                <button onclick="abrirTela('resumos', this)">Resumos</button>
+                <button onclick="abrirTela('flashcards', this)">Flashcards</button>
+                <button onclick="abrirTela('redacao', this)">Redação</button>
+                <button onclick="abrirTela('simulados', this)">Simulados</button>
+
+                <div class="menu-titulo">Desempenho</div>
+
+                <button onclick="abrirTela('progresso', this)">Meu progresso</button>
+                <button onclick="abrirTela('conquistas', this)">Conquistas</button>
+
+                <div class="menu-titulo">Recursos</div>
+
+                <button onclick="abrirTela('plataformas', this)">Plataformas</button>
+                <button onclick="abrirTela('cursinhos', this)">Cursinhos</button>
+                <button onclick="abrirTela('cursos', this)">Cursos gratuitos</button>
+                <button onclick="abrirTela('ferramentas', this)">Ferramentas</button>
+
+            </div>
+
+        </aside>
+
+        <main class="main">
+
+            <header class="topbar">
+
+                <div class="pesquisa">
+                    <input type="text" id="pesquisa" placeholder="Pesquisar no organizador..." oninput="pesquisar()">
+                </div>
+
+                <div class="perfil-topo">
+                    <span id="nomeTopo">Estudante</span>
+                    <div class="avatar" id="avatar">E</div>
+                </div>
+
+            </header>
+
+            <div class="conteudo">
+
+                <!-- INÍCIO -->
+
+                <section class="tela ativa" id="inicio">
+
+                    <div class="boas-vindas">
+                        <h2>Olá, <span id="nomeInicio">estudante</span>!</h2>
+                        <p>Organize sua rotina e acompanhe sua evolução nos estudos.</p>
+                    </div>
+
+                    <div class="cards-estatisticas">
+
+                        <div class="estatistica">
+                            <span>Horas estudadas</span>
+                            <strong id="horasInicio">0h</strong>
+                        </div>
+
+                        <div class="estatistica">
+                            <span>Tarefas cadastradas</span>
+                            <strong id="tarefasInicio">0</strong>
+                        </div>
+
+                        <div class="estatistica">
+                            <span>Questões resolvidas</span>
+                            <strong id="questoesInicio">0</strong>
+                        </div>
+
+                        <div class="estatistica">
+                            <span>Progresso geral</span>
+                            <strong id="progressoInicio">0%</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="grade">
+
+                        <div class="card">
+                            <h3>Ações rápidas</h3>
+
+                            <div class="acoes">
+
+                                <button class="botao-acao" onclick="abrirTelaPorId('plano')">
+                                    <strong>Começar estudo</strong>
+                                    <small>Organize uma nova sessão</small>
+                                </button>
+
+                                <button class="botao-acao" onclick="abrirTelaPorId('revisoes')">
+                                    <strong>Revisar conteúdo</strong>
+                                    <small>Veja suas revisões</small>
+                                </button>
+
+                                <button class="botao-acao" onclick="abrirTelaPorId('questoes')">
+                                    <strong>Resolver questões</strong>
+                                    <small>Pratique seus conhecimentos</small>
+                                </button>
+
+                                <button class="botao-acao" onclick="abrirTelaPorId('redacao')">
+                                    <strong>Estudar redação</strong>
+                                    <small>Pratique sua escrita</small>
+                                </button>
+
+                                <button class="botao-acao" onclick="abrirTelaPorId('progresso')">
+                                    <strong>Ver desempenho</strong>
+                                    <small>Acompanhe sua evolução</small>
+                                </button>
+
+                                <button class="botao-acao" onclick="abrirTimer()">
+                                    <strong>Modo foco</strong>
+                                    <small>Estude sem distrações</small>
+                                </button>
+
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Seu objetivo</h3>
+                            <p id="objetivoInicio">Cadastre seu objetivo no perfil.</p>
+                            <br>
+                            <div class="barra">
+                                <div id="barraInicio" style="width:0%"></div>
+                            </div>
+                            <br>
+                            <small id="alvoInicio">Nenhum objetivo cadastrado.</small>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- PERFIL -->
+
+                <section class="tela" id="perfil">
+
+                    <div class="titulo">
+                        <h2>Meu perfil</h2>
+                        <p>Configure suas informações e seu objetivo de estudos.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="salvarPerfil(event)">
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Nome completo</label>
+                                    <input type="text" id="nome" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>E-mail</label>
+                                    <input type="email" id="email">
+                                </div>
+
+                            </div>
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Objetivo</label>
+
+                                    <select id="objetivo">
+                                        <option>Escola</option>
+                                        <option>Vestibular / ENEM</option>
+                                        <option>Concurso Público</option>
+                                        <option>Faculdade / Universidade</option>
+                                        <option>Idiomas</option>
+                                        <option>Desenvolvimento Profissional</option>
+                                    </select>
+
+                                </div>
+
+                                <div class="campo">
+                                    <label>Exame, curso ou cargo alvo</label>
+                                    <input type="text" id="alvo">
+                                </div>
+
+                            </div>
+
+                            <button class="botao">Salvar perfil</button>
+
+                        </form>
+
+                    </div>
+
+                </section>
+
+                <!-- PLANO -->
+
+                <section class="tela" id="plano">
+
+                    <div class="titulo">
+                        <h2>Plano de estudos</h2>
+                        <p>Monte sua rotina e organize o que precisa estudar.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="adicionarPlano(event)">
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Matéria</label>
+                                    <input type="text" id="materiaPlano" placeholder="Ex.: Matemática" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Conteúdo</label>
+                                    <input type="text" id="conteudoPlano" placeholder="Ex.: Função quadrática" required>
+                                </div>
+
+                            </div>
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Data</label>
+                                    <input type="date" id="dataPlano" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Tempo de estudo</label>
+                                    <input type="number" id="tempoPlano" placeholder="Minutos" min="1" required>
+                                </div>
+
+                            </div>
+
+                            <button class="botao">Adicionar ao plano</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="card">
+                        <h3>Meu plano</h3>
+                        <div class="lista" id="listaPlano"></div>
+                    </div>
+
+                </section>
+
+                <!-- AGENDA -->
+
+                <section class="tela" id="agenda">
+
+                    <div class="titulo">
+                        <h2>Agenda</h2>
+                        <p>Visualize suas atividades e prazos.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Próximas atividades</h3>
+                        <div class="lista" id="agendaLista"></div>
+                    </div>
+
+                </section>
+
+                <!-- METAS -->
+
+                <section class="tela" id="metas">
+
+                    <div class="titulo">
+                        <h2>Metas</h2>
+                        <p>Defina objetivos para sua semana de estudos.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="salvarMetas(event)">
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Horas de estudo por semana</label>
+                                    <input type="number" id="metaHoras" min="1">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Questões por semana</label>
+                                    <input type="number" id="metaQuestoes" min="1">
+                                </div>
+
+                            </div>
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Redações por semana</label>
+                                    <input type="number" id="metaRedacoes" min="1">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Revisões por semana</label>
+                                    <input type="number" id="metaRevisoes" min="1">
+                                </div>
+
+                            </div>
+
+                            <button class="botao">Salvar metas</button>
+
+                        </form>
+
+                    </div>
+
+                </section>
+
+                <!-- QUESTÕES -->
+
+                <section class="tela" id="questoes">
+
+                    <div class="titulo">
+                        <h2>Questões</h2>
+                        <p>Registre suas questões resolvidas e acompanhe seu desempenho.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="adicionarQuestao(event)">
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Matéria</label>
+                                    <input type="text" id="materiaQuestao" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Quantidade</label>
+                                    <input type="number" id="quantidadeQuestao" min="1" required>
+                                </div>
+
+                            </div>
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Acertos</label>
+                                    <input type="number" id="acertosQuestao" min="0" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Data</label>
+                                    <input type="date" id="dataQuestao" required>
+                                </div>
+
+                            </div>
+
+                            <button class="botao">Registrar questões</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="card">
+                        <h3>Histórico</h3>
+                        <div class="lista" id="listaQuestoes"></div>
+                    </div>
+
+                </section>
+
+                <!-- REVISÕES -->
+
+                <section class="tela" id="revisoes">
+
+                    <div class="titulo">
+                        <h2>Revisões</h2>
+                        <p>Organize conteúdos que precisam ser revisados.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="adicionarRevisao(event)">
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Matéria</label>
+                                    <input type="text" id="materiaRevisao" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Conteúdo</label>
+                                    <input type="text" id="conteudoRevisao" required>
+                                </div>
+
+                            </div>
+
+                            <div class="campo">
+                                <label>Data da revisão</label>
+                                <input type="date" id="dataRevisao" required>
+                            </div>
+
+                            <button class="botao">Adicionar revisão</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="card">
+                        <div class="lista" id="listaRevisoes"></div>
+                    </div>
+
+                </section>
+
+                <!-- RESUMOS -->
+
+                <section class="tela" id="resumos">
+
+                    <div class="titulo">
+                        <h2>Resumos</h2>
+                        <p>Guarde seus resumos dentro do organizador.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="adicionarResumo(event)">
+
+                            <div class="campo">
+                                <label>Título</label>
+                                <input type="text" id="tituloResumo" required>
+                            </div>
+
+                            <div class="campo">
+                                <label>Resumo</label>
+                                <textarea id="textoResumo" required></textarea>
+                            </div>
+
+                            <button class="botao">Salvar resumo</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="card">
+                        <div class="lista" id="listaResumos"></div>
+                    </div>
+
+                </section>
+
+                <!-- FLASHCARDS -->
+
+                <section class="tela" id="flashcards">
+
+                    <div class="titulo">
+                        <h2>Flashcards</h2>
+                        <p>Crie cartões para revisar conteúdos importantes.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="adicionarFlashcard(event)">
+
+                            <div class="campo">
+                                <label>Pergunta</label>
+                                <input type="text" id="perguntaFlashcard" required>
+                            </div>
+
+                            <div class="campo">
+                                <label>Resposta</label>
+                                <textarea id="respostaFlashcard" required></textarea>
+                            </div>
+
+                            <button class="botao">Criar flashcard</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="card">
+                        <div class="lista" id="listaFlashcards"></div>
+                    </div>
+
+                </section>
+
+                <!-- REDAÇÃO -->
+
+                <section class="tela" id="redacao">
+
+                    <div class="titulo">
+                        <h2>Redação</h2>
+                        <p>Escolha um tema, escreva sua redação e receba uma avaliação orientativa.</p>
+                    </div>
+
+                    <div class="redacao-header">
+                        <h3>Prática de redação</h3>
+                        <p>Treine sua argumentação, organização e proposta de intervenção.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <div class="campo">
+                            <label>Escolha um tema para praticar</label>
+
+                            <select id="temaRedacao">
+                                <option value="">Selecione um tema</option>
+                                <option>Desafios para combater a desinformação nas redes sociais</option>
+                                <option>Impactos da inteligência artificial na sociedade brasileira</option>
+                                <option>Desafios da saúde mental entre os jovens</option>
+                                <option>Os impactos das mudanças climáticas no Brasil</option>
+                                <option>Desafios para garantir uma educação de qualidade</option>
+                                <option>A influência das redes sociais na formação dos jovens</option>
+                                <option>Desafios para combater a violência contra a mulher</option>
+                                <option>Os desafios da inclusão digital no Brasil</option>
+                                <option>A importância da preservação do meio ambiente</option>
+                                <option>Desafios do mercado de trabalho para os jovens</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="card">
+
+                        <div class="campo">
+
+                            <label>Escreva sua redação</label>
+
+                            <textarea
+                                id="textoRedacao"
+                                placeholder="Digite sua redação aqui..."
+                                oninput="atualizarContador()"
+                            ></textarea>
+
+                            <div class="contador">
+                                <span id="contadorPalavras">0 palavras</span>
+                            </div>
+
+                        </div>
+
+                        <br>
+
+                        <button class="botao" onclick="avaliarRedacao()">
+                            Avaliar redação
+                        </button>
+
+                        <button class="botao botao-secundario" onclick="limparRedacao()">
+                            Limpar
+                        </button>
+
+                    </div>
+
+                    <div class="resultado-redacao" id="resultadoRedacao">
+
+                        <div class="resultado-nota">
+                            <span>Nota orientativa</span>
+                            <strong id="notaRedacao">0</strong>
+                            <small>/ 1000</small>
+                        </div>
+
+                        <div class="card">
+
+                            <h3>Competências</h3>
+
+                            <div class="competencias">
+
+                                <div class="competencia">
+                                    <span>Competência 1</span>
+                                    <strong id="c1">0</strong>
+                                </div>
+
+                                <div class="competencia">
+                                    <span>Competência 2</span>
+                                    <strong id="c2">0</strong>
+                                </div>
+
+                                <div class="competencia">
+                                    <span>Competência 3</span>
+                                    <strong id="c3">0</strong>
+                                </div>
+
+                                <div class="competencia">
+                                    <span>Competência 4</span>
+                                    <strong id="c4">0</strong>
+                                </div>
+
+                                <div class="competencia">
+                                    <span>Competência 5</span>
+                                    <strong id="c5">0</strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="feedback">
+
+                            <div class="feedback-box">
+                                <h4>Pontos positivos</h4>
+                                <ul id="pontosPositivos"></ul>
+                            </div>
+
+                            <div class="feedback-box">
+                                <h4>O que pode melhorar</h4>
+                                <ul id="pontosMelhorar"></ul>
+                            </div>
+
+                        </div>
+
+                        <div class="card">
+                            <h3>Recomendações</h3>
+                            <ul id="recomendacoes" style="padding-left:20px;line-height:1.8;"></ul>
+                        </div>
+
+                    </div>
+
+                    <div class="card">
+                        <h3>Minhas redações</h3>
+                        <div class="lista" id="listaRedacoes"></div>
+                    </div>
+
+                </section>
+
+                <!-- SIMULADOS -->
+
+                <section class="tela" id="simulados">
+
+                    <div class="titulo">
+                        <h2>Simulados</h2>
+                        <p>Registre seus resultados e acompanhe sua evolução.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="adicionarSimulado(event)">
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Nome do simulado</label>
+                                    <input type="text" id="nomeSimulado" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Data</label>
+                                    <input type="date" id="dataSimulado" required>
+                                </div>
+
+                            </div>
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Questões</label>
+                                    <input type="number" id="questoesSimulado" min="1" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Acertos</label>
+                                    <input type="number" id="acertosSimulado" min="0" required>
+                                </div>
+
+                            </div>
+
+                            <button class="botao">Registrar simulado</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="card">
+                        <div class="lista" id="listaSimulados"></div>
+                    </div>
+
+                </section>
+
+                <!-- PROGRESSO -->
+
+                <section class="tela" id="progresso">
+
+                    <div class="titulo">
+                        <h2>Meu progresso</h2>
+                        <p>Acompanhe seus principais indicadores.</p>
+                    </div>
+
+                    <div class="cards-estatisticas">
+
+                        <div class="estatistica">
+                            <span>Horas estudadas</span>
+                            <strong id="progressoHoras">0h</strong>
+                        </div>
+
+                        <div class="estatistica">
+                            <span>Questões</span>
+                            <strong id="progressoQuestoes">0</strong>
+                        </div>
+
+                        <div class="estatistica">
+                            <span>Redações</span>
+                            <strong id="progressoRedacoes">0</strong>
+                        </div>
+
+                        <div class="estatistica">
+                            <span>Simulados</span>
+                            <strong id="progressoSimulados">0</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="card">
+
+                        <h3>Progresso geral</h3>
+
+                        <div class="barra">
+                            <div id="barraProgresso" style="width:0%"></div>
+                        </div>
+
+                        <br>
+
+                        <strong id="textoProgresso">0%</strong>
+
+                    </div>
+
+                </section>
+
+                <!-- CONQUISTAS -->
+
+                <section class="tela" id="conquistas">
+
+                    <div class="titulo">
+                        <h2>Conquistas</h2>
+                        <p>Veja seus marcos de estudo.</p>
+                    </div>
+
+                    <div class="grade-recursos">
+
+                        <div class="recurso">
+                            <span class="tag">Primeiro passo</span>
+                            <h3>Perfil criado</h3>
+                            <p>Você começou a organizar sua jornada de estudos.</p>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Prática</span>
+                            <h3>Primeiras questões</h3>
+                            <p>Resolva suas primeiras questões para desbloquear esse marco.</p>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Redação</span>
+                            <h3>Primeira redação</h3>
+                            <p>Escreva sua primeira redação dentro do organizador.</p>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- PLATAFORMAS -->
+
+                <section class="tela" id="plataformas">
+
+                    <div class="titulo">
+                        <h2>Plataformas de estudo</h2>
+                        <p>Acesse ambientes de aprendizagem.</p>
+                    </div>
+
+                    <div class="grade-recursos">
+
+                        <div class="recurso">
+                            <span class="tag">Educação</span>
+                            <h3>Khan Academy</h3>
+                            <p>Conteúdos e exercícios para diversas matérias.</p>
+                            <button class="botao" onclick="abrirLink('https://pt.khanacademy.org/')">Acessar plataforma</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Conteúdo</span>
+                            <h3>Brasil Escola</h3>
+                            <p>Materiais de estudo para diferentes disciplinas.</p>
+                            <button class="botao" onclick="abrirLink('https://brasilescola.uol.com.br/')">Acessar plataforma</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Educação</span>
+                            <h3>Google Classroom</h3>
+                            <p>Organize atividades e materiais escolares.</p>
+                            <button class="botao" onclick="abrirLink('https://classroom.google.com/')">Acessar plataforma</button>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- CURSINHOS -->
+
+                <section class="tela" id="cursinhos">
+
+                    <div class="titulo">
+                        <h2>Cursinhos</h2>
+                        <p>Encontre opções para vestibulares, ENEM e concursos.</p>
+                    </div>
+
+                    <div class="grade-recursos">
+
+                        <div class="recurso">
+                            <span class="tag">Vestibular</span>
+                            <h3>Professor Ferretto</h3>
+                            <p>Conteúdos voltados principalmente para vestibulares e ENEM.</p>
+                            <button class="botao" onclick="abrirLink('https://www.professorferretto.com.br/')">Acessar</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Vestibular</span>
+                            <h3>Estratégia Vestibulares</h3>
+                            <p>Materiais e preparação para processos seletivos.</p>
+                            <button class="botao" onclick="abrirLink('https://vestibulares.estrategia.com/')">Acessar</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">ENEM</span>
+                            <h3>Descomplica</h3>
+                            <p>Conteúdos e preparação para estudantes.</p>
+                            <button class="botao" onclick="abrirLink('https://descomplica.com.br/')">Acessar</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">ENEM</span>
+                            <h3>Stoodi</h3>
+                            <p>Material de preparação para vestibulares.</p>
+                            <button class="botao" onclick="abrirLink('https://www.stoodi.com.br/')">Acessar</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Concurso</span>
+                            <h3>Estratégia Concursos</h3>
+                            <p>Preparação para concursos públicos.</p>
+                            <button class="botao" onclick="abrirLink('https://www.estrategiaconcursos.com.br/')">Acessar</button>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- CURSOS GRATUITOS -->
+
+                <section class="tela" id="cursos">
+
+                    <div class="titulo">
+                        <h2>Cursos gratuitos</h2>
+                        <p>Encontre cursos e conteúdos para desenvolver novas habilidades.</p>
+                    </div>
+
+                    <div class="grade-recursos">
+
+                        <div class="recurso">
+                            <span class="tag">Tecnologia</span>
+                            <h3>Fundação Bradesco</h3>
+                            <p>Cursos online em áreas como tecnologia, administração e desenvolvimento profissional.</p>
+                            <button class="botao" onclick="abrirLink('https://www.ev.org.br/')">Acessar cursos</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Governo</span>
+                            <h3>Escola Virtual Gov</h3>
+                            <p>Capacitações e cursos oferecidos pela Escola Virtual de Governo.</p>
+                            <button class="botao" onclick="abrirLink('https://www.escolavirtual.gov.br/')">Acessar cursos</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Educação</span>
+                            <h3>Aprenda Mais</h3>
+                            <p>Plataforma educacional com cursos em diversas áreas.</p>
+                            <button class="botao" onclick="abrirLink('https://aprendamais.mec.gov.br/')">Acessar cursos</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Matemática</span>
+                            <h3>Khan Academy</h3>
+                            <p>Aprenda matemática, ciências e outros conteúdos por meio de aulas e exercícios.</p>
+                            <button class="botao" onclick="abrirLink('https://pt.khanacademy.org/')">Acessar</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Negócios</span>
+                            <h3>FGV Online</h3>
+                            <p>Conteúdos e cursos online da Fundação Getulio Vargas.</p>
+                            <button class="botao" onclick="abrirLink('https://educacao-executiva.fgv.br/cursos/online')">Acessar</button>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- FERRAMENTAS -->
+
+                <section class="tela" id="ferramentas">
+
+                    <div class="titulo">
+                        <h2>Ferramentas</h2>
+                        <p>Recursos para deixar sua rotina de estudos mais organizada.</p>
+                    </div>
+
+                    <div class="grade-recursos">
+
+                        <div class="recurso">
+                            <span class="tag">Foco</span>
+                            <h3>Modo foco</h3>
+                            <p>Use um cronômetro para realizar sessões concentradas de estudo.</p>
+                            <button class="botao" onclick="abrirTimer()">Iniciar foco</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Organização</span>
+                            <h3>Plano de estudos</h3>
+                            <p>Organize matérias, conteúdos, datas e tempo de estudo.</p>
+                            <button class="botao" onclick="abrirTelaPorId('plano')">Abrir plano</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Desempenho</span>
+                            <h3>Meu progresso</h3>
+                            <p>Acompanhe horas, questões, redações e simulados.</p>
+                            <button class="botao" onclick="abrirTelaPorId('progresso')">Ver progresso</button>
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- TIMER -->
+
+    <div class="modal" id="modalTimer">
+
+        <div class="modal-conteudo">
+
+            <div class="timer">
+
+                <h2>Modo foco</h2>
+                <p>Concentre-se durante sua sessão de estudos.</p>
+
+                <strong id="timer">25:00</strong>
+
+                <button class="botao" onclick="iniciarTimer()">Iniciar</button>
+                <button class="botao botao-secundario" onclick="pausarTimer()">Pausar</button>
+                <button class="botao botao-perigo" onclick="fecharTimer()">Fechar</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="notificacao" id="notificacao"></div>
+
+    <script>
+
+        let dados = JSON.parse(localStorage.getItem("organizadorEstudos")) || {
+            perfil: {
+                nome: "",
+                email: "",
+                objetivo: "Escola",
+                alvo: ""
+            },
+            planos: [],
+            questoes: [],
+            revisoes: [],
+            resumos: [],
+            flashcards: [],
+            redacoes: [],
+            simulados: [],
+            horas: 0,
+            metas: {
+                horas: 10,
+                questoes: 50,
+                redacoes: 1,
+                revisoes: 3
+            }
+        };
+
+        let intervaloTimer;
+        let segundosTimer = 1500;
+
+        function salvarDados() {
+            localStorage.setItem("organizadorEstudos", JSON.stringify(dados));
+            atualizarTudo();
+        }
+
+        function entrarAplicacao() {
+            document.getElementById("capa").style.display = "none";
+        }
+
+        function abrirTela(id, botao) {
+
+            document.querySelectorAll(".tela").forEach(tela => {
+                tela.classList.remove("ativa");
+            });
+
+            document.getElementById(id).classList.add("ativa");
+
+            document.querySelectorAll(".menu button").forEach(btn => {
+                btn.classList.remove("ativo");
+            });
+
+            if (botao) {
+                botao.classList.add("ativo");
+            }
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+
+        function abrirTelaPorId(id) {
+
+            const botoes = document.querySelectorAll(".menu button");
+
+            botoes.forEach(botao => {
+
+                const texto = botao.innerText.toLowerCase();
+
+                const nomes = {
+                    inicio: "visão geral",
+                    perfil: "meu perfil",
+                    plano: "plano de estudos",
+                    agenda: "agenda",
+                    metas: "metas",
+                    questoes: "questões",
+                    revisoes: "revisões",
+                    resumos: "resumos",
+                    flashcards: "flashcards",
+                    redacao: "redação",
+                    simulados: "simulados",
+                    progresso: "meu progresso",
+                    conquistas: "conquistas",
+                    plataformas: "plataformas",
+                    cursinhos: "cursinhos",
+                    cursos: "cursos gratuitos",
+                    ferramentas: "ferramentas"
+                };
+
+                if (texto === nomes[id]) {
+                    abrirTela(id, botao);
+                }
+
+            });
+
+            document.querySelectorAll(".tela").forEach(tela => {
+                tela.classList.remove("ativa");
+            });
+
+            document.getElementById(id).classList.add("ativa");
+        }
+
+        function salvarPerfil(evento) {
+
+            evento.preventDefault();
+
+            dados.perfil.nome = document.getElementById("nome").value;
+            dados.perfil.email = document.getElementById("email").value;
+            dados.perfil.objetivo = document.getElementById("objetivo").value;
+            dados.perfil.alvo = document.getElementById("alvo").value;
+
+            salvarDados();
+
+            mostrarNotificacao("Perfil salvo com sucesso!");
+        }
+
+        function adicionarPlano(evento) {
+
+            evento.preventDefault();
+
+            const plano = {
+                materia: document.getElementById("materiaPlano").value,
+                conteudo: document.getElementById("conteudoPlano").value,
+                data: document.getElementById("dataPlano").value,
+                tempo: Number(document.getElementById("tempoPlano").value)
+            };
+
+            dados.planos.push(plano);
+
+            document.getElementById("materiaPlano").value = "";
+            document.getElementById("conteudoPlano").value = "";
+            document.getElementById("dataPlano").value = "";
+            document.getElementById("tempoPlano").value = "";
+
+            salvarDados();
+
+            mostrarNotificacao("Estudo adicionado ao plano!");
+        }
+
+        function removerPlano(index) {
+
+            dados.planos.splice(index, 1);
+
+            salvarDados();
+
+            mostrarNotificacao("Atividade removida.");
+        }
+
+        function adicionarQuestao(evento) {
+
+            evento.preventDefault();
+
+            const quantidade = Number(document.getElementById("quantidadeQuestao").value);
+            const acertos = Number(document.getElementById("acertosQuestao").value);
+
+            dados.questoes.push({
+                materia: document.getElementById("materiaQuestao").value,
+                quantidade,
+                acertos,
+                data: document.getElementById("dataQuestao").value
+            });
+
+            salvarDados();
+
+            evento.target.reset();
+
+            mostrarNotificacao("Questões registradas!");
+        }
+
+        function removerQuestao(index) {
+
+            dados.questoes.splice(index, 1);
+
+            salvarDados();
+        }
+
+        function adicionarRevisao(evento) {
+
+            evento.preventDefault();
+
+            dados.revisoes.push({
+                materia: document.getElementById("materiaRevisao").value,
+                conteudo: document.getElementById("conteudoRevisao").value,
+                data: document.getElementById("dataRevisao").value
+            });
+
+            salvarDados();
+
+            evento.target.reset();
+
+            mostrarNotificacao("Revisão adicionada!");
+        }
+
+        function removerRevisao(index) {
+
+            dados.revisoes.splice(index, 1);
+
+            salvarDados();
+        }
+
+        function adicionarResumo(evento) {
+
+            evento.preventDefault();
+
+            dados.resumos.push({
+                titulo: document.getElementById("tituloResumo").value,
+                texto: document.getElementById("textoResumo").value
+            });
+
+            salvarDados();
+
+            evento.target.reset();
+
+            mostrarNotificacao("Resumo salvo!");
+        }
+
+        function removerResumo(index) {
+
+            dados.resumos.splice(index, 1);
+
+            salvarDados();
+        }
+
+        function adicionarFlashcard(evento) {
+
+            evento.preventDefault();
+
+            dados.flashcards.push({
+                pergunta: document.getElementById("perguntaFlashcard").value,
+                resposta: document.getElementById("respostaFlashcard").value
+            });
+
+            salvarDados();
+
+            evento.target.reset();
+
+            mostrarNotificacao("Flashcard criado!");
+        }
+
+        function removerFlashcard(index) {
+
+            dados.flashcards.splice(index, 1);
+
+            salvarDados();
+        }
+
+        function adicionarSimulado(evento) {
+
+            evento.preventDefault();
+
+            dados.simulados.push({
+                nome: document.getElementById("nomeSimulado").value,
+                data: document.getElementById("dataSimulado").value,
+                questoes: Number(document.getElementById("questoesSimulado").value),
+                acertos: Number(document.getElementById("acertosSimulado").value)
+            });
+
+            salvarDados();
+
+            evento.target.reset();
+
+            mostrarNotificacao("Simulado registrado!");
+        }
+
+        function removerSimulado(index) {
+
+            dados.simulados.splice(index, 1);
+
+            salvarDados();
+        }
+
+        function salvarMetas(evento) {
+
+            evento.preventDefault();
+
+            dados.metas.horas = Number(document.getElementById("metaHoras").value);
+            dados.metas.questoes = Number(document.getElementById("metaQuestoes").value);
+            dados.metas.redacoes = Number(document.getElementById("metaRedacoes").value);
+            dados.metas.revisoes = Number(document.getElementById("metaRevisoes").value);
+
+            salvarDados();
+
+            mostrarNotificacao("Metas atualizadas!");
+        }
+
+        function atualizarContador() {
+
+            const texto = document.getElementById("textoRedacao").value.trim();
+
+            const palavras = texto
+                ? texto.split(/\s+/).length
+                : 0;
+
+            document.getElementById("contadorPalavras").innerText =
+                palavras + (palavras === 1 ? " palavra" : " palavras");
+        }
+
+        function limparRedacao() {
+
+            document.getElementById("textoRedacao").value = "";
+            document.getElementById("temaRedacao").value = "";
+            document.getElementById("resultadoRedacao").style.display = "none";
+
+            atualizarContador();
+        }
+
+        function avaliarRedacao() {
+
+            const texto = document.getElementById("textoRedacao").value.trim();
+            const tema = document.getElementById("temaRedacao").value;
+
+            if (!tema) {
+                mostrarNotificacao("Escolha um tema para a redação.");
+                return;
+            }
+
+            if (texto.length < 100) {
+                mostrarNotificacao("Escreva uma redação maior para receber uma avaliação.");
+                return;
+            }
+
+            const palavras = texto.split(/\s+/).length;
+            const paragrafos = texto.split(/\n+/).filter(p => p.trim()).length;
+
+            const conectivos = [
+                "portanto",
+                "além disso",
+                "porém",
+                "entretanto",
+                "contudo",
+                "dessa forma",
+                "nesse sentido",
+                "assim",
+                "todavia",
+                "logo"
+            ];
+
+            const repertorios = [
+                "constituição",
+                "ibge",
+                "onu",
+                "filósofo",
+                "filosofia",
+                "sociedade",
+                "história",
+                "histórico",
+                "lei",
+                "artigo",
+                "pesquisa",
+                "dados"
+            ];
+
+            const proposta = [
+                "governo",
+                "escola",
+                "sociedade",
+                "mídia",
+                "ministério",
+                "campanha",
+                "política pública",
+                "projeto"
+            ];
+
+            const textoMinusculo = texto.toLowerCase();
+
+            let c1 = 100;
+            let c2 = 100;
+            let c3 = 100;
+            let c4 = 100;
+            let c5 = 100;
+
+            if (palavras >= 250) c1 += 30;
+            if (palavras >= 400) c1 += 30;
+
+            if (repertorios.some(palavra => textoMinusculo.includes(palavra))) {
+                c2 += 35;
+            }
+
+            if (palavras >= 300) {
+                c3 += 30;
+            }
+
+            const quantidadeConectivos = conectivos.filter(
+                conectivo => textoMinusculo.includes(conectivo)
+            ).length;
+
+            c4 += Math.min(quantidadeConectivos * 15, 70);
+
+            if (proposta.some(palavra => textoMinusculo.includes(palavra))) {
+                c5 += 45;
+            }
+
+            if (
+                textoMinusculo.includes("ação") ||
+                textoMinusculo.includes("medida") ||
+                textoMinusculo.includes("implementar")
+            ) {
+                c5 += 25;
+            }
+
+            if (paragrafos >= 4) {
+                c3 += 25;
+            }
+
+            c1 = Math.min(c1, 200);
+            c2 = Math.min(c2, 200);
+            c3 = Math.min(c3, 200);
+            c4 = Math.min(c4, 200);
+            c5 = Math.min(c5, 200);
+
+            const nota = c1 + c2 + c3 + c4 + c5;
+
+            const positivos = [];
+            const melhorar = [];
+            const recomendacoes = [];
+
+            if (palavras >= 250) {
+                positivos.push("Boa quantidade de desenvolvimento textual.");
+            } else {
+                melhorar.push("Desenvolva mais os argumentos e aprofunde as ideias.");
+            }
+
+            if (paragrafos >= 4) {
+                positivos.push("O texto apresenta uma divisão adequada de parágrafos.");
+            } else {
+                melhorar.push("Organize melhor o texto em introdução, desenvolvimento e conclusão.");
+            }
+
+            if (quantidadeConectivos >= 2) {
+                positivos.push("Você utilizou conectivos para relacionar as ideias.");
+            } else {
+                melhorar.push("Use mais conectivos para melhorar a ligação entre os argumentos.");
+            }
+
+            if (repertorios.some(palavra => textoMinusculo.includes(palavra))) {
+                positivos.push("Há tentativa de utilizar repertório sociocultural.");
+            } else {
+                melhorar.push("Inclua repertórios socioculturais relevantes para fortalecer a argumentação.");
+            }
+
+            if (proposta.some(palavra => textoMinusculo.includes(palavra))) {
+                positivos.push("Existe uma proposta de intervenção no texto.");
+            } else {
+                melhorar.push("Desenvolva uma proposta de intervenção mais completa.");
+            }
+
+            recomendacoes.push("Revise a introdução para apresentar claramente o problema.");
+            recomendacoes.push("Desenvolva argumentos com explicações e exemplos.");
+            recomendacoes.push("Use conectivos variados.");
+            recomendacoes.push("Revise ortografia, pontuação e concordância.");
+            recomendacoes.push("Na conclusão, apresente uma proposta clara e detalhada.");
+
+            document.getElementById("notaRedacao").innerText = nota;
+
+            document.getElementById("c1").innerText = c1;
+            document.getElementById("c2").innerText = c2;
+            document.getElementById("c3").innerText = c3;
+            document.getElementById("c4").innerText = c4;
+            document.getElementById("c5").innerText = c5;
+
+            document.getElementById("pontosPositivos").innerHTML =
+                positivos.map(item => `<li>${item}</li>`).join("");
+
+            document.getElementById("pontosMelhorar").innerHTML =
+                melhorar.map(item => `<li>${item}</li>`).join("");
+
+            document.getElementById("recomendacoes").innerHTML =
+                recomendacoes.map(item => `<li>${item}</li>`).join("");
+
+            document.getElementById("resultadoRedacao").style.display = "block";
+
+            dados.redacoes.push({
+                tema,
+                nota,
+                competencias: [c1, c2, c3, c4, c5],
+                palavras,
+                data: new Date().toLocaleDateString("pt-BR")
+            });
+
+            salvarDados();
+
+            mostrarNotificacao("Redação avaliada!");
+        }
+
+        function removerRedacao(index) {
+
+            dados.redacoes.splice(index, 1);
+
+            salvarDados();
+        }
+
+        function abrirTimer() {
+
+            document.getElementById("modalTimer").classList.add("ativo");
+
+        }
+
+        function fecharTimer() {
+
+            document.getElementById("modalTimer").classList.remove("ativo");
+
+            clearInterval(intervaloTimer);
+
+        }
+
+        function iniciarTimer() {
+
+            clearInterval(intervaloTimer);
+
+            intervaloTimer = setInterval(() => {
+
+                if (segundosTimer <= 0) {
+
+                    clearInterval(intervaloTimer);
+
+                    dados.horas += 0.5;
+
+                    salvarDados();
+
+                    mostrarNotificacao("Sessão concluída! +30 minutos de estudo.");
+
+                    segundosTimer = 1500;
+
+                    atualizarTimer();
+
+                    return;
+                }
+
+                segundosTimer--;
+
+                atualizarTimer();
+
+            }, 1000);
+
+        }
+
+        function pausarTimer() {
+
+            clearInterval(intervaloTimer);
+
+        }
+
+        function atualizarTimer() {
+
+            const minutos = Math.floor(segundosTimer / 60);
+            const segundos = segundosTimer % 60;
+
+            document.getElementById("timer").innerText =
+                String(minutos).padStart(2, "0") +
+                ":" +
+                String(segundos).padStart(2, "0");
+
+        }
+
+        function abrirLink(url) {
+
+            window.open(url, "_blank");
+
+        }
+
+        function pesquisar() {
+
+            const termo = document.getElementById("pesquisa").value.toLowerCase().trim();
+
+            if (!termo) return;
+
+            const textos = document.querySelectorAll(".tela");
+
+            textos.forEach(tela => {
+
+                const conteudo = tela.innerText.toLowerCase();
+
+                if (conteudo.includes(termo)) {
+                    tela.classList.add("ativa");
+                }
+
+            });
+
+        }
+
+        function mostrarNotificacao(mensagem) {
+
+            const notificacao = document.getElementById("notificacao");
+
+            notificacao.innerText = mensagem;
+            notificacao.classList.add("mostrar");
+
+            setTimeout(() => {
+                notificacao.classList.remove("mostrar");
+            }, 2500);
+
+        }
+
+        function atualizarPerfil() {
+
+            document.getElementById("nome").value = dados.perfil.nome;
+            document.getElementById("email").value = dados.perfil.email;
+            document.getElementById("objetivo").value = dados.perfil.objetivo;
+            document.getElementById("alvo").value = dados.perfil.alvo;
+
+            const nome = dados.perfil.nome || "Estudante";
+
+            document.getElementById("nomeTopo").innerText = nome;
+            document.getElementById("nomeInicio").innerText = nome.split(" ")[0];
+
+            document.getElementById("avatar").innerText =
+                nome.charAt(0).toUpperCase();
+
+            document.getElementById("objetivoInicio").innerText =
+                dados.perfil.objetivo || "Nenhum objetivo";
+
+            document.getElementById("alvoInicio").innerText =
+                dados.perfil.alvo || "Nenhum objetivo cadastrado.";
+        }
+
+        function atualizarPlano() {
+
+            const lista = document.getElementById("listaPlano");
+
+            if (!dados.planos.length) {
+                lista.innerHTML = `<div class="vazio">Nenhum estudo cadastrado.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.planos.map((item, index) => `
+
+                <div class="item">
+
+                    <div class="item-info">
+                        <strong>${item.materia}</strong>
+                        <small>${item.conteudo} • ${item.data} • ${item.tempo} minutos</small>
+                    </div>
+
+                    <div class="acoes-item">
+                        <button class="botao botao-perigo" onclick="removerPlano(${index})">
+                            Remover
+                        </button>
+                    </div>
+
+                </div>
+
+            `).join("");
+        }
+
+        function atualizarAgenda() {
+
+            const lista = document.getElementById("agendaLista");
+
+            if (!dados.planos.length) {
+                lista.innerHTML = `<div class="vazio">Sua agenda está vazia.</div>`;
+                return;
+            }
+
+            const ordenados = [...dados.planos].sort(
+                (a, b) => new Date(a.data) - new Date(b.data)
+            );
+
+            lista.innerHTML = ordenados.map(item => `
+
+                <div class="item">
+
+                    <div class="item-info">
+                        <strong>${item.materia}</strong>
+                        <small>${item.conteudo}</small>
+                    </div>
+
+                    <span>${item.data}</span>
+
+                </div>
+
+            `).join("");
+        }
+
+        function atualizarQuestoes() {
+
+            const lista = document.getElementById("listaQuestoes");
+
+            if (!dados.questoes.length) {
+                lista.innerHTML = `<div class="vazio">Nenhuma questão registrada.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.questoes.map((item, index) => {
+
+                const porcentagem =
+                    item.quantidade > 0
+                    ? Math.round((item.acertos / item.quantidade) * 100)
+                    : 0;
+
+                return `
+
+                    <div class="item">
+
+                        <div class="item-info">
+                            <strong>${item.materia}</strong>
+                            <small>
+                                item.acertos/{item.quantidade} acertos
+                                • ${porcentagem}%
+                                • ${item.data}
+                            </small>
+                        </div>
+
+                        <button class="botao botao-perigo" onclick="removerQuestao(${index})">
+                            Remover
+                        </button>
+
+                    </div>
+
+                `;
+
+            }).join("");
+        }
+
+        function atualizarRevisoes() {
+
+            const lista = document.getElementById("listaRevisoes");
+
+            if (!dados.revisoes.length) {
+                lista.innerHTML = `<div class="vazio">Nenhuma revisão cadastrada.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.revisoes.map((item, index) => `
+
+                <div class="item">
+
+                    <div class="item-info">
+                        <strong>${item.materia}</strong>
+                        <small>${item.conteudo} • ${item.data}</small>
+                    </div>
+
+                    <button class="botao botao-perigo" onclick="removerRevisao(${index})">
+                        Remover
+                    </button>
+
+                </div>
+
+            `).join("");
+        }
+
+        function atualizarResumos() {
+
+            const lista = document.getElementById("listaResumos");
+
+            if (!dados.resumos.length) {
+                lista.innerHTML = `<div class="vazio">Nenhum resumo salvo.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.resumos.map((item, index) => `
+
+                <div class="item">
+
+                    <div class="item-info">
+                        <strong>${item.titulo}</strong>
+                        <small>${item.texto.substring(0, 100)}...</small>
+                    </div>
+
+                    <button class="botao botao-perigo" onclick="removerResumo(${index})">
+                        Remover
+                    </button>
+
+                </div>
+
+            `).join("");
+        }
+
+        function atualizarFlashcards() {
+
+            const lista = document.getElementById("listaFlashcards");
+
+            if (!dados.flashcards.length) {
+                lista.innerHTML = `<div class="vazio">Nenhum flashcard criado.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.flashcards.map((item, index) => `
+
+                <div class="item">
+
+                    <div class="item-info">
+                        <strong>${item.pergunta}</strong>
+                        <small>${item.resposta}</small>
+                    </div>
+
+                    <button class="botao botao-perigo" onclick="removerFlashcard(${index})">
+                        Remover
+                    </button>
+
+                </div>
+
+            `).join("");
+        }
+
+        function atualizarRedacoes() {
+
+            const lista = document.getElementById("listaRedacoes");
+
+            if (!dados.redacoes.length) {
+                lista.innerHTML = `<div class="vazio">Nenhuma redação avaliada.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.redacoes.map((item, index) => `
+
+                <div class="item">
+
+                    <div class="item-info">
+                        <strong>${item.tema}</strong>
+                        <small>
+                            Nota ${item.nota}/1000
+                            • ${item.palavras} palavras
+                            • ${item.data}
+                        </small>
+                    </div>
+
+                    <button class="botao botao-perigo" onclick="removerRedacao(${index})">
+                        Remover
+                    </button>
+
+                </div>
+
+            `).join("");
+        }
+
+        function atualizarSimulados() {
+
+            const lista = document.getElementById("listaSimulados");
+
+            if (!dados.simulados.length) {
+                lista.innerHTML = `<div class="vazio">Nenhum simulado registrado.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.simulados.map((item, index) => {
+
+                const porcentagem =
+                    Math.round((item.acertos / item.questoes) * 100);
+
+                return `
+
+                    <div class="item">
+
+                        <div class="item-info">
+                            <strong>${item.nome}</strong>
+                            <small>
+                                item.acertos/{item.questoes} acertos
+                                • ${porcentagem}%
+                                • ${item.data}
+                            </small>
+                        </div>
+
+                        <button class="botao botao-perigo" onclick="removerSimulado(${index})">
+                            Remover
+                        </button>
+
+                    </div>
+
+                `;
+
+            }).join("");
+        }
+
+        function atualizarEstatisticas() {
+
+            const totalQuestoes = dados.questoes.reduce(
+                (total, item) => total + item.quantidade,
+                0
+            );
+
+            const totalTarefas =
+                dados.planos.length +
+                dados.revisoes.length;
+
+            const progresso = Math.min(
+                100,
+                Math.round(
+                    (
+                        (dados.horas / Math.max(dados.metas.horas, 1)) +
+                        (totalQuestoes / Math.max(dados.metas.questoes, 1)) +
+                        (dados.redacoes.length / Math.max(dados.metas.redacoes, 1)) +
+                        (dados.revisoes.length / Math.max(dados.metas.revisoes, 1))
+                    ) / 4 * 100
+                )
+            );
+
+            document.getElementById("horasInicio").innerText =
+                dados.horas.toFixed(1) + "h";
+
+            document.getElementById("tarefasInicio").innerText =
+                totalTarefas;
+
+            document.getElementById("questoesInicio").innerText =
+                totalQuestoes;
+
+            document.getElementById("progressoInicio").innerText =
+                progresso + "%";
+
+            document.getElementById("barraInicio").style.width =
+                progresso + "%";
+
+            document.getElementById("progressoHoras").innerText =
+                dados.horas.toFixed(1) + "h";
+
+            document.getElementById("progressoQuestoes").innerText =
+                totalQuestoes;
+
+            document.getElementById("progressoRedacoes").innerText =
+                dados.redacoes.length;
+
+            document.getElementById("progressoSimulados").innerText =
+                dados.simulados.length;
+
+            document.getElementById("barraProgresso").style.width =
+                progresso + "%";
+
+            document.getElementById("textoProgresso").innerText =
+                progresso + "%";
+
+            document.getElementById("metaHoras").value =
+                dados.metas.horas;
+
+            document.getElementById("metaQuestoes").value =
+                dados.metas.questoes;
+
+            document.getElementById("metaRedacoes").value =
+                dados.metas.redacoes;
+
+            document.getElementById("metaRevisoes").value =
+                dados.metas.revisoes;
+        }
+
+        function atualizarTudo() {
+
+            atualizarPerfil();
+            atualizarPlano();
+            atualizarAgenda();
+            atualizarQuestoes();
+            atualizarRevisoes();
+            atualizarResumos();
+            atualizarFlashcards();
+            atualizarRedacoes();
+            atualizarSimulados();
+            atualizarEstatisticas();
+
+        }
+
+        atualizarTudo();
+        atualizarTimer();
+        atualizarContador();
+
+    </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizador de Estudos</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        :root {
+            --roxo: #6d28d9;
+            --roxo-escuro: #4c1d95;
+            --roxo-claro: #8b5cf6;
+            --roxo-suave: #f3e8ff;
+            --fundo: #f6f7fb;
+            --branco: #ffffff;
+            --texto: #1f2937;
+            --texto-secundario: #6b7280;
+            --borda: #e5e7eb;
+            --verde: #16a34a;
+            --vermelho: #dc2626;
+        }
+
+        body {
+            background: var(--fundo);
+            color: var(--texto);
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #4c1d95, #6d28d9);
+            color: white;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            padding: 25px 16px;
+            overflow-y: auto;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 21px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            opacity: .75;
+            margin-top: 5px;
+        }
+
+        .menu-titulo {
+            font-size: 11px;
+            text-transform: uppercase;
+            opacity: .55;
+            margin: 20px 12px 8px;
+        }
+
+        .menu button {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: white;
+            text-align: left;
+            padding: 12px;
+            border-radius: 9px;
+            margin-bottom: 4px;
+            transition: .2s;
+        }
+
+        .menu button:hover,
+        .menu button.ativo {
+            background: rgba(255,255,255,.16);
+        }
+
+        .main {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+        }
+
+        .topbar {
+            height: 72px;
+            background: white;
+            border-bottom: 1px solid var(--borda);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .pesquisa {
+            width: 320px;
+        }
+
+        .pesquisa input {
+            width: 100%;
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            padding: 11px 14px;
+            outline: none;
+        }
+
+        .perfil-topo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--roxo-suave);
+            color: var(--roxo);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .conteudo {
+            padding: 30px;
+            max-width: 1500px;
+            margin: auto;
+        }
+
+        .tela {
+            display: none;
+        }
+
+        .tela.ativa {
+            display: block;
+        }
+
+        .titulo {
+            margin-bottom: 25px;
+        }
+
+        .titulo h2 {
+            font-size: 27px;
+            margin-bottom: 6px;
+        }
+
+        .titulo p {
+            color: var(--texto-secundario);
+        }
+
+        .boas-vindas {
+            background: linear-gradient(135deg, #4c1d95, #7c3aed);
+            color: white;
+            padding: 30px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+        }
+
+        .boas-vindas h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .boas-vindas p {
+            opacity: .85;
+        }
+
+        .cards-estatisticas {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .estatistica {
+            background: white;
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .estatistica span {
+            color: var(--texto-secundario);
+            font-size: 13px;
+        }
+
+        .estatistica strong {
+            display: block;
+            color: var(--roxo);
+            font-size: 28px;
+            margin-top: 8px;
+        }
+
+        .grade {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            margin-bottom: 17px;
+        }
+
+        .acoes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .botao-acao {
+            border: 1px solid var(--borda);
+            background: white;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: left;
+            transition: .2s;
+        }
+
+        .botao-acao:hover {
+            border-color: var(--roxo-claro);
+            transform: translateY(-2px);
+        }
+
+        .botao-acao strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .botao-acao small {
+            color: var(--texto-secundario);
+        }
+
+        .formulario {
+            display: grid;
+            gap: 15px;
+        }
+
+        .campo {
+            display: grid;
+            gap: 7px;
+        }
+
+        .campo label {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .campo input,
+        .campo select,
+        .campo textarea {
+            width: 100%;
+            border: 1px solid var(--borda);
+            border-radius: 9px;
+            padding: 12px;
+            outline: none;
+            background: white;
+        }
+
+        .campo textarea {
+            min-height: 180px;
+            resize: vertical;
+        }
+
+        .campo input:focus,
+        .campo select:focus,
+        .campo textarea:focus {
+            border-color: var(--roxo);
+        }
+
+        .linha {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .botao {
+            background: var(--roxo);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-weight: bold;
+            transition: .2s;
+        }
+
+        .botao:hover {
+            background: var(--roxo-escuro);
+        }
+
+        .botao-secundario {
+            background: var(--roxo-suave);
+            color: var(--roxo);
+        }
+
+        .botao-perigo {
+            background: #fee2e2;
+            color: var(--vermelho);
+        }
+
+        .lista {
+            display: grid;
+            gap: 10px;
+        }
+
+        .item {
+            border: 1px solid var(--borda);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .item-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .item-info small {
+            color: var(--texto-secundario);
+        }
+
+        .acoes-item {
+            display: flex;
+            gap: 7px;
+        }
+
+        .barra {
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .barra div {
+            height: 100%;
+            background: linear-gradient(90deg, var(--roxo-escuro), var(--roxo-claro));
+            border-radius: 20px;
+        }
+
+        .grade-recursos {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .recurso {
+            background: white;
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .recurso h3 {
+            color: var(--roxo);
+            margin-bottom: 8px;
+        }
+
+        .recurso p {
+            color: var(--texto-secundario);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            flex: 1;
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--roxo-suave);
+            color: var(--roxo);
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+
+        .redacao-header {
+            background: linear-gradient(135deg, #4c1d95, #7c3aed);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .redacao-header h3 {
+            margin-bottom: 7px;
+        }
+
+        .contador {
+            text-align: right;
+            color: var(--texto-secundario);
+            font-size: 13px;
+            margin-top: 7px;
+        }
+
+        .resultado-redacao {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .resultado-nota {
+            text-align: center;
+            background: var(--roxo-suave);
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+
+        .resultado-nota span {
+            display: block;
+            color: var(--texto-secundario);
+        }
+
+        .resultado-nota strong {
+            display: block;
+            font-size: 52px;
+            color: var(--roxo);
+            margin-top: 5px;
+        }
+
+        .competencias {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .competencia {
+            border: 1px solid var(--borda);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .competencia strong {
+            display: block;
+            color: var(--roxo);
+            font-size: 22px;
+            margin-top: 7px;
+        }
+
+        .feedback {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feedback-box {
+            border-radius: 12px;
+            padding: 18px;
+            background: #f9fafb;
+            border: 1px solid var(--borda);
+        }
+
+        .feedback-box h4 {
+            margin-bottom: 10px;
+        }
+
+        .feedback-box ul {
+            padding-left: 18px;
+            color: var(--texto-secundario);
+            line-height: 1.7;
+        }
+
+        .timer {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .timer strong {
+            font-size: 60px;
+            color: var(--roxo);
+            display: block;
+            margin: 20px;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(17,24,39,.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal.ativo {
+            display: flex;
+        }
+
+        .modal-conteudo {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 450px;
+            padding: 25px;
+        }
+
+        .notificacao {
+            position: fixed;
+            right: 25px;
+            bottom: 25px;
+            background: #111827;
+            color: white;
+            padding: 14px 18px;
+            border-radius: 9px;
+            display: none;
+            z-index: 200;
+        }
+
+        .notificacao.mostrar {
+            display: block;
+        }
+
+        .vazio {
+            color: var(--texto-secundario);
+            text-align: center;
+            padding: 25px;
+        }
+
+        .capa {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #3b0764, #6d28d9, #8b5cf6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+        }
+
+        .capa-conteudo {
+            text-align: center;
+            max-width: 600px;
+            padding: 30px;
+        }
+
+        .capa h1 {
+            font-size: 52px;
+            margin-bottom: 15px;
+        }
+
+        .capa p {
+            font-size: 18px;
+            opacity: .9;
+            margin-bottom: 30px;
+        }
+
+        .capa button {
+            background: white;
+            color: var(--roxo);
+            border: none;
+            padding: 14px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .oculto {
+            display: none !important;
+        }
+
+        @media(max-width: 1100px) {
+            .cards-estatisticas {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grade-recursos {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .competencias {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media(max-width: 800px) {
+            .sidebar {
+                width: 210px;
+            }
+
+            .main {
+                margin-left: 210px;
+                width: calc(100% - 210px);
+            }
+
+            .grade,
+            .feedback {
+                grid-template-columns: 1fr;
+            }
+
+            .acoes {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media(max-width: 600px) {
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+
+            .app {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .topbar {
+                padding: 15px;
+                height: auto;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .pesquisa {
+                width: 100%;
+            }
+
+            .conteudo {
+                padding: 15px;
+            }
+
+            .cards-estatisticas,
+            .grade-recursos,
+            .linha {
+                grid-template-columns: 1fr;
+            }
+
+            .competencias {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .acoes {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="capa" id="capa">
+        <div class="capa-conteudo">
+            <h1>Organizador de Estudos</h1>
+            <p>Planeje seus estudos, acompanhe seu desempenho e organize seu caminho para alcançar seus objetivos.</p>
+            <button onclick="entrarAplicacao()">Começar agora</button>
+        </div>
+    </div>
+
+    <div class="app">
+
+        <aside class="sidebar">
+
+            <div class="logo">
+                <h1>Organizador</h1>
+                <p>Seu espaço de estudos</p>
+            </div>
+
+            <div class="menu">
+
+                <div class="menu-titulo">Principal</div>
+
+                <button class="ativo" onclick="abrirTela('inicio', this)">Visão geral</button>
+                <button onclick="abrirTela('perfil', this)">Meu perfil</button>
+                <button onclick="abrirTela('plano', this)">Plano de estudos</button>
+                <button onclick="abrirTela('agenda', this)">Agenda</button>
+                <button onclick="abrirTela('metas', this)">Metas</button>
+
+                <div class="menu-titulo">Estudos</div>
+
+                <button onclick="abrirTela('questoes', this)">Questões</button>
+                <button onclick="abrirTela('revisoes', this)">Revisões</button>
+                <button onclick="abrirTela('resumos', this)">Resumos</button>
+                <button onclick="abrirTela('flashcards', this)">Flashcards</button>
+                <button onclick="abrirTela('redacao', this)">Redação</button>
+                <button onclick="abrirTela('simulados', this)">Simulados</button>
+
+                <div class="menu-titulo">Desempenho</div>
+
+                <button onclick="abrirTela('progresso', this)">Meu progresso</button>
+                <button onclick="abrirTela('conquistas', this)">Conquistas</button>
+
+                <div class="menu-titulo">Recursos</div>
+
+                <button onclick="abrirTela('plataformas', this)">Plataformas</button>
+                <button onclick="abrirTela('cursinhos', this)">Cursinhos</button>
+                <button onclick="abrirTela('cursos', this)">Cursos gratuitos</button>
+                <button onclick="abrirTela('ferramentas', this)">Ferramentas</button>
+
+            </div>
+
+        </aside>
+
+        <main class="main">
+
+            <header class="topbar">
+
+                <div class="pesquisa">
+                    <input type="text" id="pesquisa" placeholder="Pesquisar no organizador..." oninput="pesquisar()">
+                </div>
+
+                <div class="perfil-topo">
+                    <span id="nomeTopo">Estudante</span>
+                    <div class="avatar" id="avatar">E</div>
+                </div>
+
+            </header>
+
+            <div class="conteudo">
+
+                <!-- INÍCIO -->
+
+                <section class="tela ativa" id="inicio">
+
+                    <div class="boas-vindas">
+                        <h2>Olá, <span id="nomeInicio">estudante</span>!</h2>
+                        <p>Organize sua rotina e acompanhe sua evolução nos estudos.</p>
+                    </div>
+
+                    <div class="cards-estatisticas">
+
+                        <div class="estatistica">
+                            <span>Horas estudadas</span>
+                            <strong id="horasInicio">0h</strong>
+                        </div>
+
+                        <div class="estatistica">
+                            <span>Tarefas cadastradas</span>
+                            <strong id="tarefasInicio">0</strong>
+                        </div>
+
+                        <div class="estatistica">
+                            <span>Questões resolvidas</span>
+                            <strong id="questoesInicio">0</strong>
+                        </div>
+
+                        <div class="estatistica">
+                            <span>Progresso geral</span>
+                            <strong id="progressoInicio">0%</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="grade">
+
+                        <div class="card">
+                            <h3>Ações rápidas</h3>
+
+                            <div class="acoes">
+
+                                <button class="botao-acao" onclick="abrirTelaPorId('plano')">
+                                    <strong>Começar estudo</strong>
+                                    <small>Organize uma nova sessão</small>
+                                </button>
+
+                                <button class="botao-acao" onclick="abrirTelaPorId('revisoes')">
+                                    <strong>Revisar conteúdo</strong>
+                                    <small>Veja suas revisões</small>
+                                </button>
+
+                                <button class="botao-acao" onclick="abrirTelaPorId('questoes')">
+                                    <strong>Resolver questões</strong>
+                                    <small>Pratique seus conhecimentos</small>
+                                </button>
+
+                                <button class="botao-acao" onclick="abrirTelaPorId('redacao')">
+                                    <strong>Estudar redação</strong>
+                                    <small>Pratique sua escrita</small>
+                                </button>
+
+                                <button class="botao-acao" onclick="abrirTelaPorId('progresso')">
+                                    <strong>Ver desempenho</strong>
+                                    <small>Acompanhe sua evolução</small>
+                                </button>
+
+                                <button class="botao-acao" onclick="abrirTimer()">
+                                    <strong>Modo foco</strong>
+                                    <small>Estude sem distrações</small>
+                                </button>
+
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Seu objetivo</h3>
+                            <p id="objetivoInicio">Cadastre seu objetivo no perfil.</p>
+                            <br>
+                            <div class="barra">
+                                <div id="barraInicio" style="width:0%"></div>
+                            </div>
+                            <br>
+                            <small id="alvoInicio">Nenhum objetivo cadastrado.</small>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- PERFIL -->
+
+                <section class="tela" id="perfil">
+
+                    <div class="titulo">
+                        <h2>Meu perfil</h2>
+                        <p>Configure suas informações e seu objetivo de estudos.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="salvarPerfil(event)">
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Nome completo</label>
+                                    <input type="text" id="nome" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>E-mail</label>
+                                    <input type="email" id="email">
+                                </div>
+
+                            </div>
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Objetivo</label>
+
+                                    <select id="objetivo">
+                                        <option>Escola</option>
+                                        <option>Vestibular / ENEM</option>
+                                        <option>Concurso Público</option>
+                                        <option>Faculdade / Universidade</option>
+                                        <option>Idiomas</option>
+                                        <option>Desenvolvimento Profissional</option>
+                                    </select>
+
+                                </div>
+
+                                <div class="campo">
+                                    <label>Exame, curso ou cargo alvo</label>
+                                    <input type="text" id="alvo">
+                                </div>
+
+                            </div>
+
+                            <button class="botao">Salvar perfil</button>
+
+                        </form>
+
+                    </div>
+
+                </section>
+
+                <!-- PLANO -->
+
+                <section class="tela" id="plano">
+
+                    <div class="titulo">
+                        <h2>Plano de estudos</h2>
+                        <p>Monte sua rotina e organize o que precisa estudar.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="adicionarPlano(event)">
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Matéria</label>
+                                    <input type="text" id="materiaPlano" placeholder="Ex.: Matemática" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Conteúdo</label>
+                                    <input type="text" id="conteudoPlano" placeholder="Ex.: Função quadrática" required>
+                                </div>
+
+                            </div>
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Data</label>
+                                    <input type="date" id="dataPlano" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Tempo de estudo</label>
+                                    <input type="number" id="tempoPlano" placeholder="Minutos" min="1" required>
+                                </div>
+
+                            </div>
+
+                            <button class="botao">Adicionar ao plano</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="card">
+                        <h3>Meu plano</h3>
+                        <div class="lista" id="listaPlano"></div>
+                    </div>
+
+                </section>
+
+                <!-- AGENDA -->
+
+                <section class="tela" id="agenda">
+
+                    <div class="titulo">
+                        <h2>Agenda</h2>
+                        <p>Visualize suas atividades e prazos.</p>
+                    </div>
+
+                    <div class="card">
+                        <h3>Próximas atividades</h3>
+                        <div class="lista" id="agendaLista"></div>
+                    </div>
+
+                </section>
+
+                <!-- METAS -->
+
+                <section class="tela" id="metas">
+
+                    <div class="titulo">
+                        <h2>Metas</h2>
+                        <p>Defina objetivos para sua semana de estudos.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="salvarMetas(event)">
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Horas de estudo por semana</label>
+                                    <input type="number" id="metaHoras" min="1">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Questões por semana</label>
+                                    <input type="number" id="metaQuestoes" min="1">
+                                </div>
+
+                            </div>
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Redações por semana</label>
+                                    <input type="number" id="metaRedacoes" min="1">
+                                </div>
+
+                                <div class="campo">
+                                    <label>Revisões por semana</label>
+                                    <input type="number" id="metaRevisoes" min="1">
+                                </div>
+
+                            </div>
+
+                            <button class="botao">Salvar metas</button>
+
+                        </form>
+
+                    </div>
+
+                </section>
+
+                <!-- QUESTÕES -->
+
+                <section class="tela" id="questoes">
+
+                    <div class="titulo">
+                        <h2>Questões</h2>
+                        <p>Registre suas questões resolvidas e acompanhe seu desempenho.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="adicionarQuestao(event)">
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Matéria</label>
+                                    <input type="text" id="materiaQuestao" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Quantidade</label>
+                                    <input type="number" id="quantidadeQuestao" min="1" required>
+                                </div>
+
+                            </div>
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Acertos</label>
+                                    <input type="number" id="acertosQuestao" min="0" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Data</label>
+                                    <input type="date" id="dataQuestao" required>
+                                </div>
+
+                            </div>
+
+                            <button class="botao">Registrar questões</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="card">
+                        <h3>Histórico</h3>
+                        <div class="lista" id="listaQuestoes"></div>
+                    </div>
+
+                </section>
+
+                <!-- REVISÕES -->
+
+                <section class="tela" id="revisoes">
+
+                    <div class="titulo">
+                        <h2>Revisões</h2>
+                        <p>Organize conteúdos que precisam ser revisados.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="adicionarRevisao(event)">
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Matéria</label>
+                                    <input type="text" id="materiaRevisao" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Conteúdo</label>
+                                    <input type="text" id="conteudoRevisao" required>
+                                </div>
+
+                            </div>
+
+                            <div class="campo">
+                                <label>Data da revisão</label>
+                                <input type="date" id="dataRevisao" required>
+                            </div>
+
+                            <button class="botao">Adicionar revisão</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="card">
+                        <div class="lista" id="listaRevisoes"></div>
+                    </div>
+
+                </section>
+
+                <!-- RESUMOS -->
+
+                <section class="tela" id="resumos">
+
+                    <div class="titulo">
+                        <h2>Resumos</h2>
+                        <p>Guarde seus resumos dentro do organizador.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="adicionarResumo(event)">
+
+                            <div class="campo">
+                                <label>Título</label>
+                                <input type="text" id="tituloResumo" required>
+                            </div>
+
+                            <div class="campo">
+                                <label>Resumo</label>
+                                <textarea id="textoResumo" required></textarea>
+                            </div>
+
+                            <button class="botao">Salvar resumo</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="card">
+                        <div class="lista" id="listaResumos"></div>
+                    </div>
+
+                </section>
+
+                <!-- FLASHCARDS -->
+
+                <section class="tela" id="flashcards">
+
+                    <div class="titulo">
+                        <h2>Flashcards</h2>
+                        <p>Crie cartões para revisar conteúdos importantes.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="adicionarFlashcard(event)">
+
+                            <div class="campo">
+                                <label>Pergunta</label>
+                                <input type="text" id="perguntaFlashcard" required>
+                            </div>
+
+                            <div class="campo">
+                                <label>Resposta</label>
+                                <textarea id="respostaFlashcard" required></textarea>
+                            </div>
+
+                            <button class="botao">Criar flashcard</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="card">
+                        <div class="lista" id="listaFlashcards"></div>
+                    </div>
+
+                </section>
+
+                <!-- REDAÇÃO -->
+
+                <section class="tela" id="redacao">
+
+                    <div class="titulo">
+                        <h2>Redação</h2>
+                        <p>Escolha um tema, escreva sua redação e receba uma avaliação orientativa.</p>
+                    </div>
+
+                    <div class="redacao-header">
+                        <h3>Prática de redação</h3>
+                        <p>Treine sua argumentação, organização e proposta de intervenção.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <div class="campo">
+                            <label>Escolha um tema para praticar</label>
+
+                            <select id="temaRedacao">
+                                <option value="">Selecione um tema</option>
+                                <option>Desafios para combater a desinformação nas redes sociais</option>
+                                <option>Impactos da inteligência artificial na sociedade brasileira</option>
+                                <option>Desafios da saúde mental entre os jovens</option>
+                                <option>Os impactos das mudanças climáticas no Brasil</option>
+                                <option>Desafios para garantir uma educação de qualidade</option>
+                                <option>A influência das redes sociais na formação dos jovens</option>
+                                <option>Desafios para combater a violência contra a mulher</option>
+                                <option>Os desafios da inclusão digital no Brasil</option>
+                                <option>A importância da preservação do meio ambiente</option>
+                                <option>Desafios do mercado de trabalho para os jovens</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="card">
+
+                        <div class="campo">
+
+                            <label>Escreva sua redação</label>
+
+                            <textarea
+                                id="textoRedacao"
+                                placeholder="Digite sua redação aqui..."
+                                oninput="atualizarContador()"
+                            ></textarea>
+
+                            <div class="contador">
+                                <span id="contadorPalavras">0 palavras</span>
+                            </div>
+
+                        </div>
+
+                        <br>
+
+                        <button class="botao" onclick="avaliarRedacao()">
+                            Avaliar redação
+                        </button>
+
+                        <button class="botao botao-secundario" onclick="limparRedacao()">
+                            Limpar
+                        </button>
+
+                    </div>
+
+                    <div class="resultado-redacao" id="resultadoRedacao">
+
+                        <div class="resultado-nota">
+                            <span>Nota orientativa</span>
+                            <strong id="notaRedacao">0</strong>
+                            <small>/ 1000</small>
+                        </div>
+
+                        <div class="card">
+
+                            <h3>Competências</h3>
+
+                            <div class="competencias">
+
+                                <div class="competencia">
+                                    <span>Competência 1</span>
+                                    <strong id="c1">0</strong>
+                                </div>
+
+                                <div class="competencia">
+                                    <span>Competência 2</span>
+                                    <strong id="c2">0</strong>
+                                </div>
+
+                                <div class="competencia">
+                                    <span>Competência 3</span>
+                                    <strong id="c3">0</strong>
+                                </div>
+
+                                <div class="competencia">
+                                    <span>Competência 4</span>
+                                    <strong id="c4">0</strong>
+                                </div>
+
+                                <div class="competencia">
+                                    <span>Competência 5</span>
+                                    <strong id="c5">0</strong>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="feedback">
+
+                            <div class="feedback-box">
+                                <h4>Pontos positivos</h4>
+                                <ul id="pontosPositivos"></ul>
+                            </div>
+
+                            <div class="feedback-box">
+                                <h4>O que pode melhorar</h4>
+                                <ul id="pontosMelhorar"></ul>
+                            </div>
+
+                        </div>
+
+                        <div class="card">
+                            <h3>Recomendações</h3>
+                            <ul id="recomendacoes" style="padding-left:20px;line-height:1.8;"></ul>
+                        </div>
+
+                    </div>
+
+                    <div class="card">
+                        <h3>Minhas redações</h3>
+                        <div class="lista" id="listaRedacoes"></div>
+                    </div>
+
+                </section>
+
+                <!-- SIMULADOS -->
+
+                <section class="tela" id="simulados">
+
+                    <div class="titulo">
+                        <h2>Simulados</h2>
+                        <p>Registre seus resultados e acompanhe sua evolução.</p>
+                    </div>
+
+                    <div class="card">
+
+                        <form class="formulario" onsubmit="adicionarSimulado(event)">
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Nome do simulado</label>
+                                    <input type="text" id="nomeSimulado" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Data</label>
+                                    <input type="date" id="dataSimulado" required>
+                                </div>
+
+                            </div>
+
+                            <div class="linha">
+
+                                <div class="campo">
+                                    <label>Questões</label>
+                                    <input type="number" id="questoesSimulado" min="1" required>
+                                </div>
+
+                                <div class="campo">
+                                    <label>Acertos</label>
+                                    <input type="number" id="acertosSimulado" min="0" required>
+                                </div>
+
+                            </div>
+
+                            <button class="botao">Registrar simulado</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="card">
+                        <div class="lista" id="listaSimulados"></div>
+                    </div>
+
+                </section>
+
+                <!-- PROGRESSO -->
+
+                <section class="tela" id="progresso">
+
+                    <div class="titulo">
+                        <h2>Meu progresso</h2>
+                        <p>Acompanhe seus principais indicadores.</p>
+                    </div>
+
+                    <div class="cards-estatisticas">
+
+                        <div class="estatistica">
+                            <span>Horas estudadas</span>
+                            <strong id="progressoHoras">0h</strong>
+                        </div>
+
+                        <div class="estatistica">
+                            <span>Questões</span>
+                            <strong id="progressoQuestoes">0</strong>
+                        </div>
+
+                        <div class="estatistica">
+                            <span>Redações</span>
+                            <strong id="progressoRedacoes">0</strong>
+                        </div>
+
+                        <div class="estatistica">
+                            <span>Simulados</span>
+                            <strong id="progressoSimulados">0</strong>
+                        </div>
+
+                    </div>
+
+                    <div class="card">
+
+                        <h3>Progresso geral</h3>
+
+                        <div class="barra">
+                            <div id="barraProgresso" style="width:0%"></div>
+                        </div>
+
+                        <br>
+
+                        <strong id="textoProgresso">0%</strong>
+
+                    </div>
+
+                </section>
+
+                <!-- CONQUISTAS -->
+
+                <section class="tela" id="conquistas">
+
+                    <div class="titulo">
+                        <h2>Conquistas</h2>
+                        <p>Veja seus marcos de estudo.</p>
+                    </div>
+
+                    <div class="grade-recursos">
+
+                        <div class="recurso">
+                            <span class="tag">Primeiro passo</span>
+                            <h3>Perfil criado</h3>
+                            <p>Você começou a organizar sua jornada de estudos.</p>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Prática</span>
+                            <h3>Primeiras questões</h3>
+                            <p>Resolva suas primeiras questões para desbloquear esse marco.</p>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Redação</span>
+                            <h3>Primeira redação</h3>
+                            <p>Escreva sua primeira redação dentro do organizador.</p>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- PLATAFORMAS -->
+
+                <section class="tela" id="plataformas">
+
+                    <div class="titulo">
+                        <h2>Plataformas de estudo</h2>
+                        <p>Acesse ambientes de aprendizagem.</p>
+                    </div>
+
+                    <div class="grade-recursos">
+
+                        <div class="recurso">
+                            <span class="tag">Educação</span>
+                            <h3>Khan Academy</h3>
+                            <p>Conteúdos e exercícios para diversas matérias.</p>
+                            <button class="botao" onclick="abrirLink('https://pt.khanacademy.org/')">Acessar plataforma</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Conteúdo</span>
+                            <h3>Brasil Escola</h3>
+                            <p>Materiais de estudo para diferentes disciplinas.</p>
+                            <button class="botao" onclick="abrirLink('https://brasilescola.uol.com.br/')">Acessar plataforma</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Educação</span>
+                            <h3>Google Classroom</h3>
+                            <p>Organize atividades e materiais escolares.</p>
+                            <button class="botao" onclick="abrirLink('https://classroom.google.com/')">Acessar plataforma</button>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- CURSINHOS -->
+
+                <section class="tela" id="cursinhos">
+
+                    <div class="titulo">
+                        <h2>Cursinhos</h2>
+                        <p>Encontre opções para vestibulares, ENEM e concursos.</p>
+                    </div>
+
+                    <div class="grade-recursos">
+
+                        <div class="recurso">
+                            <span class="tag">Vestibular</span>
+                            <h3>Professor Ferretto</h3>
+                            <p>Conteúdos voltados principalmente para vestibulares e ENEM.</p>
+                            <button class="botao" onclick="abrirLink('https://www.professorferretto.com.br/')">Acessar</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Vestibular</span>
+                            <h3>Estratégia Vestibulares</h3>
+                            <p>Materiais e preparação para processos seletivos.</p>
+                            <button class="botao" onclick="abrirLink('https://vestibulares.estrategia.com/')">Acessar</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">ENEM</span>
+                            <h3>Descomplica</h3>
+                            <p>Conteúdos e preparação para estudantes.</p>
+                            <button class="botao" onclick="abrirLink('https://descomplica.com.br/')">Acessar</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">ENEM</span>
+                            <h3>Stoodi</h3>
+                            <p>Material de preparação para vestibulares.</p>
+                            <button class="botao" onclick="abrirLink('https://www.stoodi.com.br/')">Acessar</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Concurso</span>
+                            <h3>Estratégia Concursos</h3>
+                            <p>Preparação para concursos públicos.</p>
+                            <button class="botao" onclick="abrirLink('https://www.estrategiaconcursos.com.br/')">Acessar</button>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- CURSOS GRATUITOS -->
+
+                <section class="tela" id="cursos">
+
+                    <div class="titulo">
+                        <h2>Cursos gratuitos</h2>
+                        <p>Encontre cursos e conteúdos para desenvolver novas habilidades.</p>
+                    </div>
+
+                    <div class="grade-recursos">
+
+                        <div class="recurso">
+                            <span class="tag">Tecnologia</span>
+                            <h3>Fundação Bradesco</h3>
+                            <p>Cursos online em áreas como tecnologia, administração e desenvolvimento profissional.</p>
+                            <button class="botao" onclick="abrirLink('https://www.ev.org.br/')">Acessar cursos</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Governo</span>
+                            <h3>Escola Virtual Gov</h3>
+                            <p>Capacitações e cursos oferecidos pela Escola Virtual de Governo.</p>
+                            <button class="botao" onclick="abrirLink('https://www.escolavirtual.gov.br/')">Acessar cursos</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Educação</span>
+                            <h3>Aprenda Mais</h3>
+                            <p>Plataforma educacional com cursos em diversas áreas.</p>
+                            <button class="botao" onclick="abrirLink('https://aprendamais.mec.gov.br/')">Acessar cursos</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Matemática</span>
+                            <h3>Khan Academy</h3>
+                            <p>Aprenda matemática, ciências e outros conteúdos por meio de aulas e exercícios.</p>
+                            <button class="botao" onclick="abrirLink('https://pt.khanacademy.org/')">Acessar</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Negócios</span>
+                            <h3>FGV Online</h3>
+                            <p>Conteúdos e cursos online da Fundação Getulio Vargas.</p>
+                            <button class="botao" onclick="abrirLink('https://educacao-executiva.fgv.br/cursos/online')">Acessar</button>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- FERRAMENTAS -->
+
+                <section class="tela" id="ferramentas">
+
+                    <div class="titulo">
+                        <h2>Ferramentas</h2>
+                        <p>Recursos para deixar sua rotina de estudos mais organizada.</p>
+                    </div>
+
+                    <div class="grade-recursos">
+
+                        <div class="recurso">
+                            <span class="tag">Foco</span>
+                            <h3>Modo foco</h3>
+                            <p>Use um cronômetro para realizar sessões concentradas de estudo.</p>
+                            <button class="botao" onclick="abrirTimer()">Iniciar foco</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Organização</span>
+                            <h3>Plano de estudos</h3>
+                            <p>Organize matérias, conteúdos, datas e tempo de estudo.</p>
+                            <button class="botao" onclick="abrirTelaPorId('plano')">Abrir plano</button>
+                        </div>
+
+                        <div class="recurso">
+                            <span class="tag">Desempenho</span>
+                            <h3>Meu progresso</h3>
+                            <p>Acompanhe horas, questões, redações e simulados.</p>
+                            <button class="botao" onclick="abrirTelaPorId('progresso')">Ver progresso</button>
+                        </div>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- TIMER -->
+
+    <div class="modal" id="modalTimer">
+
+        <div class="modal-conteudo">
+
+            <div class="timer">
+
+                <h2>Modo foco</h2>
+                <p>Concentre-se durante sua sessão de estudos.</p>
+
+                <strong id="timer">25:00</strong>
+
+                <button class="botao" onclick="iniciarTimer()">Iniciar</button>
+                <button class="botao botao-secundario" onclick="pausarTimer()">Pausar</button>
+                <button class="botao botao-perigo" onclick="fecharTimer()">Fechar</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="notificacao" id="notificacao"></div>
+
+    <script>
+
+        let dados = JSON.parse(localStorage.getItem("organizadorEstudos")) || {
+            perfil: {
+                nome: "",
+                email: "",
+                objetivo: "Escola",
+                alvo: ""
+            },
+            planos: [],
+            questoes: [],
+            revisoes: [],
+            resumos: [],
+            flashcards: [],
+            redacoes: [],
+            simulados: [],
+            horas: 0,
+            metas: {
+                horas: 10,
+                questoes: 50,
+                redacoes: 1,
+                revisoes: 3
+            }
+        };
+
+        let intervaloTimer;
+        let segundosTimer = 1500;
+
+        function salvarDados() {
+            localStorage.setItem("organizadorEstudos", JSON.stringify(dados));
+            atualizarTudo();
+        }
+
+        function entrarAplicacao() {
+            document.getElementById("capa").style.display = "none";
+        }
+
+        function abrirTela(id, botao) {
+
+            document.querySelectorAll(".tela").forEach(tela => {
+                tela.classList.remove("ativa");
+            });
+
+            document.getElementById(id).classList.add("ativa");
+
+            document.querySelectorAll(".menu button").forEach(btn => {
+                btn.classList.remove("ativo");
+            });
+
+            if (botao) {
+                botao.classList.add("ativo");
+            }
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+
+        function abrirTelaPorId(id) {
+
+            const botoes = document.querySelectorAll(".menu button");
+
+            botoes.forEach(botao => {
+
+                const texto = botao.innerText.toLowerCase();
+
+                const nomes = {
+                    inicio: "visão geral",
+                    perfil: "meu perfil",
+                    plano: "plano de estudos",
+                    agenda: "agenda",
+                    metas: "metas",
+                    questoes: "questões",
+                    revisoes: "revisões",
+                    resumos: "resumos",
+                    flashcards: "flashcards",
+                    redacao: "redação",
+                    simulados: "simulados",
+                    progresso: "meu progresso",
+                    conquistas: "conquistas",
+                    plataformas: "plataformas",
+                    cursinhos: "cursinhos",
+                    cursos: "cursos gratuitos",
+                    ferramentas: "ferramentas"
+                };
+
+                if (texto === nomes[id]) {
+                    abrirTela(id, botao);
+                }
+
+            });
+
+            document.querySelectorAll(".tela").forEach(tela => {
+                tela.classList.remove("ativa");
+            });
+
+            document.getElementById(id).classList.add("ativa");
+        }
+
+        function salvarPerfil(evento) {
+
+            evento.preventDefault();
+
+            dados.perfil.nome = document.getElementById("nome").value;
+            dados.perfil.email = document.getElementById("email").value;
+            dados.perfil.objetivo = document.getElementById("objetivo").value;
+            dados.perfil.alvo = document.getElementById("alvo").value;
+
+            salvarDados();
+
+            mostrarNotificacao("Perfil salvo com sucesso!");
+        }
+
+        function adicionarPlano(evento) {
+
+            evento.preventDefault();
+
+            const plano = {
+                materia: document.getElementById("materiaPlano").value,
+                conteudo: document.getElementById("conteudoPlano").value,
+                data: document.getElementById("dataPlano").value,
+                tempo: Number(document.getElementById("tempoPlano").value)
+            };
+
+            dados.planos.push(plano);
+
+            document.getElementById("materiaPlano").value = "";
+            document.getElementById("conteudoPlano").value = "";
+            document.getElementById("dataPlano").value = "";
+            document.getElementById("tempoPlano").value = "";
+
+            salvarDados();
+
+            mostrarNotificacao("Estudo adicionado ao plano!");
+        }
+
+        function removerPlano(index) {
+
+            dados.planos.splice(index, 1);
+
+            salvarDados();
+
+            mostrarNotificacao("Atividade removida.");
+        }
+
+        function adicionarQuestao(evento) {
+
+            evento.preventDefault();
+
+            const quantidade = Number(document.getElementById("quantidadeQuestao").value);
+            const acertos = Number(document.getElementById("acertosQuestao").value);
+
+            dados.questoes.push({
+                materia: document.getElementById("materiaQuestao").value,
+                quantidade,
+                acertos,
+                data: document.getElementById("dataQuestao").value
+            });
+
+            salvarDados();
+
+            evento.target.reset();
+
+            mostrarNotificacao("Questões registradas!");
+        }
+
+        function removerQuestao(index) {
+
+            dados.questoes.splice(index, 1);
+
+            salvarDados();
+        }
+
+        function adicionarRevisao(evento) {
+
+            evento.preventDefault();
+
+            dados.revisoes.push({
+                materia: document.getElementById("materiaRevisao").value,
+                conteudo: document.getElementById("conteudoRevisao").value,
+                data: document.getElementById("dataRevisao").value
+            });
+
+            salvarDados();
+
+            evento.target.reset();
+
+            mostrarNotificacao("Revisão adicionada!");
+        }
+
+        function removerRevisao(index) {
+
+            dados.revisoes.splice(index, 1);
+
+            salvarDados();
+        }
+
+        function adicionarResumo(evento) {
+
+            evento.preventDefault();
+
+            dados.resumos.push({
+                titulo: document.getElementById("tituloResumo").value,
+                texto: document.getElementById("textoResumo").value
+            });
+
+            salvarDados();
+
+            evento.target.reset();
+
+            mostrarNotificacao("Resumo salvo!");
+        }
+
+        function removerResumo(index) {
+
+            dados.resumos.splice(index, 1);
+
+            salvarDados();
+        }
+
+        function adicionarFlashcard(evento) {
+
+            evento.preventDefault();
+
+            dados.flashcards.push({
+                pergunta: document.getElementById("perguntaFlashcard").value,
+                resposta: document.getElementById("respostaFlashcard").value
+            });
+
+            salvarDados();
+
+            evento.target.reset();
+
+            mostrarNotificacao("Flashcard criado!");
+        }
+
+        function removerFlashcard(index) {
+
+            dados.flashcards.splice(index, 1);
+
+            salvarDados();
+        }
+
+        function adicionarSimulado(evento) {
+
+            evento.preventDefault();
+
+            dados.simulados.push({
+                nome: document.getElementById("nomeSimulado").value,
+                data: document.getElementById("dataSimulado").value,
+                questoes: Number(document.getElementById("questoesSimulado").value),
+                acertos: Number(document.getElementById("acertosSimulado").value)
+            });
+
+            salvarDados();
+
+            evento.target.reset();
+
+            mostrarNotificacao("Simulado registrado!");
+        }
+
+        function removerSimulado(index) {
+
+            dados.simulados.splice(index, 1);
+
+            salvarDados();
+        }
+
+        function salvarMetas(evento) {
+
+            evento.preventDefault();
+
+            dados.metas.horas = Number(document.getElementById("metaHoras").value);
+            dados.metas.questoes = Number(document.getElementById("metaQuestoes").value);
+            dados.metas.redacoes = Number(document.getElementById("metaRedacoes").value);
+            dados.metas.revisoes = Number(document.getElementById("metaRevisoes").value);
+
+            salvarDados();
+
+            mostrarNotificacao("Metas atualizadas!");
+        }
+
+        function atualizarContador() {
+
+            const texto = document.getElementById("textoRedacao").value.trim();
+
+            const palavras = texto
+                ? texto.split(/\s+/).length
+                : 0;
+
+            document.getElementById("contadorPalavras").innerText =
+                palavras + (palavras === 1 ? " palavra" : " palavras");
+        }
+
+        function limparRedacao() {
+
+            document.getElementById("textoRedacao").value = "";
+            document.getElementById("temaRedacao").value = "";
+            document.getElementById("resultadoRedacao").style.display = "none";
+
+            atualizarContador();
+        }
+
+        function avaliarRedacao() {
+
+            const texto = document.getElementById("textoRedacao").value.trim();
+            const tema = document.getElementById("temaRedacao").value;
+
+            if (!tema) {
+                mostrarNotificacao("Escolha um tema para a redação.");
+                return;
+            }
+
+            if (texto.length < 100) {
+                mostrarNotificacao("Escreva uma redação maior para receber uma avaliação.");
+                return;
+            }
+
+            const palavras = texto.split(/\s+/).length;
+            const paragrafos = texto.split(/\n+/).filter(p => p.trim()).length;
+
+            const conectivos = [
+                "portanto",
+                "além disso",
+                "porém",
+                "entretanto",
+                "contudo",
+                "dessa forma",
+                "nesse sentido",
+                "assim",
+                "todavia",
+                "logo"
+            ];
+
+            const repertorios = [
+                "constituição",
+                "ibge",
+                "onu",
+                "filósofo",
+                "filosofia",
+                "sociedade",
+                "história",
+                "histórico",
+                "lei",
+                "artigo",
+                "pesquisa",
+                "dados"
+            ];
+
+            const proposta = [
+                "governo",
+                "escola",
+                "sociedade",
+                "mídia",
+                "ministério",
+                "campanha",
+                "política pública",
+                "projeto"
+            ];
+
+            const textoMinusculo = texto.toLowerCase();
+
+            let c1 = 100;
+            let c2 = 100;
+            let c3 = 100;
+            let c4 = 100;
+            let c5 = 100;
+
+            if (palavras >= 250) c1 += 30;
+            if (palavras >= 400) c1 += 30;
+
+            if (repertorios.some(palavra => textoMinusculo.includes(palavra))) {
+                c2 += 35;
+            }
+
+            if (palavras >= 300) {
+                c3 += 30;
+            }
+
+            const quantidadeConectivos = conectivos.filter(
+                conectivo => textoMinusculo.includes(conectivo)
+            ).length;
+
+            c4 += Math.min(quantidadeConectivos * 15, 70);
+
+            if (proposta.some(palavra => textoMinusculo.includes(palavra))) {
+                c5 += 45;
+            }
+
+            if (
+                textoMinusculo.includes("ação") ||
+                textoMinusculo.includes("medida") ||
+                textoMinusculo.includes("implementar")
+            ) {
+                c5 += 25;
+            }
+
+            if (paragrafos >= 4) {
+                c3 += 25;
+            }
+
+            c1 = Math.min(c1, 200);
+            c2 = Math.min(c2, 200);
+            c3 = Math.min(c3, 200);
+            c4 = Math.min(c4, 200);
+            c5 = Math.min(c5, 200);
+
+            const nota = c1 + c2 + c3 + c4 + c5;
+
+            const positivos = [];
+            const melhorar = [];
+            const recomendacoes = [];
+
+            if (palavras >= 250) {
+                positivos.push("Boa quantidade de desenvolvimento textual.");
+            } else {
+                melhorar.push("Desenvolva mais os argumentos e aprofunde as ideias.");
+            }
+
+            if (paragrafos >= 4) {
+                positivos.push("O texto apresenta uma divisão adequada de parágrafos.");
+            } else {
+                melhorar.push("Organize melhor o texto em introdução, desenvolvimento e conclusão.");
+            }
+
+            if (quantidadeConectivos >= 2) {
+                positivos.push("Você utilizou conectivos para relacionar as ideias.");
+            } else {
+                melhorar.push("Use mais conectivos para melhorar a ligação entre os argumentos.");
+            }
+
+            if (repertorios.some(palavra => textoMinusculo.includes(palavra))) {
+                positivos.push("Há tentativa de utilizar repertório sociocultural.");
+            } else {
+                melhorar.push("Inclua repertórios socioculturais relevantes para fortalecer a argumentação.");
+            }
+
+            if (proposta.some(palavra => textoMinusculo.includes(palavra))) {
+                positivos.push("Existe uma proposta de intervenção no texto.");
+            } else {
+                melhorar.push("Desenvolva uma proposta de intervenção mais completa.");
+            }
+
+            recomendacoes.push("Revise a introdução para apresentar claramente o problema.");
+            recomendacoes.push("Desenvolva argumentos com explicações e exemplos.");
+            recomendacoes.push("Use conectivos variados.");
+            recomendacoes.push("Revise ortografia, pontuação e concordância.");
+            recomendacoes.push("Na conclusão, apresente uma proposta clara e detalhada.");
+
+            document.getElementById("notaRedacao").innerText = nota;
+
+            document.getElementById("c1").innerText = c1;
+            document.getElementById("c2").innerText = c2;
+            document.getElementById("c3").innerText = c3;
+            document.getElementById("c4").innerText = c4;
+            document.getElementById("c5").innerText = c5;
+
+            document.getElementById("pontosPositivos").innerHTML =
+                positivos.map(item => `<li>${item}</li>`).join("");
+
+            document.getElementById("pontosMelhorar").innerHTML =
+                melhorar.map(item => `<li>${item}</li>`).join("");
+
+            document.getElementById("recomendacoes").innerHTML =
+                recomendacoes.map(item => `<li>${item}</li>`).join("");
+
+            document.getElementById("resultadoRedacao").style.display = "block";
+
+            dados.redacoes.push({
+                tema,
+                nota,
+                competencias: [c1, c2, c3, c4, c5],
+                palavras,
+                data: new Date().toLocaleDateString("pt-BR")
+            });
+
+            salvarDados();
+
+            mostrarNotificacao("Redação avaliada!");
+        }
+
+        function removerRedacao(index) {
+
+            dados.redacoes.splice(index, 1);
+
+            salvarDados();
+        }
+
+        function abrirTimer() {
+
+            document.getElementById("modalTimer").classList.add("ativo");
+
+        }
+
+        function fecharTimer() {
+
+            document.getElementById("modalTimer").classList.remove("ativo");
+
+            clearInterval(intervaloTimer);
+
+        }
+
+        function iniciarTimer() {
+
+            clearInterval(intervaloTimer);
+
+            intervaloTimer = setInterval(() => {
+
+                if (segundosTimer <= 0) {
+
+                    clearInterval(intervaloTimer);
+
+                    dados.horas += 0.5;
+
+                    salvarDados();
+
+                    mostrarNotificacao("Sessão concluída! +30 minutos de estudo.");
+
+                    segundosTimer = 1500;
+
+                    atualizarTimer();
+
+                    return;
+                }
+
+                segundosTimer--;
+
+                atualizarTimer();
+
+            }, 1000);
+
+        }
+
+        function pausarTimer() {
+
+            clearInterval(intervaloTimer);
+
+        }
+
+        function atualizarTimer() {
+
+            const minutos = Math.floor(segundosTimer / 60);
+            const segundos = segundosTimer % 60;
+
+            document.getElementById("timer").innerText =
+                String(minutos).padStart(2, "0") +
+                ":" +
+                String(segundos).padStart(2, "0");
+
+        }
+
+        function abrirLink(url) {
+
+            window.open(url, "_blank");
+
+        }
+
+        function pesquisar() {
+
+            const termo = document.getElementById("pesquisa").value.toLowerCase().trim();
+
+            if (!termo) return;
+
+            const textos = document.querySelectorAll(".tela");
+
+            textos.forEach(tela => {
+
+                const conteudo = tela.innerText.toLowerCase();
+
+                if (conteudo.includes(termo)) {
+                    tela.classList.add("ativa");
+                }
+
+            });
+
+        }
+
+        function mostrarNotificacao(mensagem) {
+
+            const notificacao = document.getElementById("notificacao");
+
+            notificacao.innerText = mensagem;
+            notificacao.classList.add("mostrar");
+
+            setTimeout(() => {
+                notificacao.classList.remove("mostrar");
+            }, 2500);
+
+        }
+
+        function atualizarPerfil() {
+
+            document.getElementById("nome").value = dados.perfil.nome;
+            document.getElementById("email").value = dados.perfil.email;
+            document.getElementById("objetivo").value = dados.perfil.objetivo;
+            document.getElementById("alvo").value = dados.perfil.alvo;
+
+            const nome = dados.perfil.nome || "Estudante";
+
+            document.getElementById("nomeTopo").innerText = nome;
+            document.getElementById("nomeInicio").innerText = nome.split(" ")[0];
+
+            document.getElementById("avatar").innerText =
+                nome.charAt(0).toUpperCase();
+
+            document.getElementById("objetivoInicio").innerText =
+                dados.perfil.objetivo || "Nenhum objetivo";
+
+            document.getElementById("alvoInicio").innerText =
+                dados.perfil.alvo || "Nenhum objetivo cadastrado.";
+        }
+
+        function atualizarPlano() {
+
+            const lista = document.getElementById("listaPlano");
+
+            if (!dados.planos.length) {
+                lista.innerHTML = `<div class="vazio">Nenhum estudo cadastrado.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.planos.map((item, index) => `
+
+                <div class="item">
+
+                    <div class="item-info">
+                        <strong>${item.materia}</strong>
+                        <small>${item.conteudo} • ${item.data} • ${item.tempo} minutos</small>
+                    </div>
+
+                    <div class="acoes-item">
+                        <button class="botao botao-perigo" onclick="removerPlano(${index})">
+                            Remover
+                        </button>
+                    </div>
+
+                </div>
+
+            `).join("");
+        }
+
+        function atualizarAgenda() {
+
+            const lista = document.getElementById("agendaLista");
+
+            if (!dados.planos.length) {
+                lista.innerHTML = `<div class="vazio">Sua agenda está vazia.</div>`;
+                return;
+            }
+
+            const ordenados = [...dados.planos].sort(
+                (a, b) => new Date(a.data) - new Date(b.data)
+            );
+
+            lista.innerHTML = ordenados.map(item => `
+
+                <div class="item">
+
+                    <div class="item-info">
+                        <strong>${item.materia}</strong>
+                        <small>${item.conteudo}</small>
+                    </div>
+
+                    <span>${item.data}</span>
+
+                </div>
+
+            `).join("");
+        }
+
+        function atualizarQuestoes() {
+
+            const lista = document.getElementById("listaQuestoes");
+
+            if (!dados.questoes.length) {
+                lista.innerHTML = `<div class="vazio">Nenhuma questão registrada.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.questoes.map((item, index) => {
+
+                const porcentagem =
+                    item.quantidade > 0
+                    ? Math.round((item.acertos / item.quantidade) * 100)
+                    : 0;
+
+                return `
+
+                    <div class="item">
+
+                        <div class="item-info">
+                            <strong>${item.materia}</strong>
+                            <small>
+                                item.acertos/{item.quantidade} acertos
+                                • ${porcentagem}%
+                                • ${item.data}
+                            </small>
+                        </div>
+
+                        <button class="botao botao-perigo" onclick="removerQuestao(${index})">
+                            Remover
+                        </button>
+
+                    </div>
+
+                `;
+
+            }).join("");
+        }
+
+        function atualizarRevisoes() {
+
+            const lista = document.getElementById("listaRevisoes");
+
+            if (!dados.revisoes.length) {
+                lista.innerHTML = `<div class="vazio">Nenhuma revisão cadastrada.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.revisoes.map((item, index) => `
+
+                <div class="item">
+
+                    <div class="item-info">
+                        <strong>${item.materia}</strong>
+                        <small>${item.conteudo} • ${item.data}</small>
+                    </div>
+
+                    <button class="botao botao-perigo" onclick="removerRevisao(${index})">
+                        Remover
+                    </button>
+
+                </div>
+
+            `).join("");
+        }
+
+        function atualizarResumos() {
+
+            const lista = document.getElementById("listaResumos");
+
+            if (!dados.resumos.length) {
+                lista.innerHTML = `<div class="vazio">Nenhum resumo salvo.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.resumos.map((item, index) => `
+
+                <div class="item">
+
+                    <div class="item-info">
+                        <strong>${item.titulo}</strong>
+                        <small>${item.texto.substring(0, 100)}...</small>
+                    </div>
+
+                    <button class="botao botao-perigo" onclick="removerResumo(${index})">
+                        Remover
+                    </button>
+
+                </div>
+
+            `).join("");
+        }
+
+        function atualizarFlashcards() {
+
+            const lista = document.getElementById("listaFlashcards");
+
+            if (!dados.flashcards.length) {
+                lista.innerHTML = `<div class="vazio">Nenhum flashcard criado.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.flashcards.map((item, index) => `
+
+                <div class="item">
+
+                    <div class="item-info">
+                        <strong>${item.pergunta}</strong>
+                        <small>${item.resposta}</small>
+                    </div>
+
+                    <button class="botao botao-perigo" onclick="removerFlashcard(${index})">
+                        Remover
+                    </button>
+
+                </div>
+
+            `).join("");
+        }
+
+        function atualizarRedacoes() {
+
+            const lista = document.getElementById("listaRedacoes");
+
+            if (!dados.redacoes.length) {
+                lista.innerHTML = `<div class="vazio">Nenhuma redação avaliada.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.redacoes.map((item, index) => `
+
+                <div class="item">
+
+                    <div class="item-info">
+                        <strong>${item.tema}</strong>
+                        <small>
+                            Nota ${item.nota}/1000
+                            • ${item.palavras} palavras
+                            • ${item.data}
+                        </small>
+                    </div>
+
+                    <button class="botao botao-perigo" onclick="removerRedacao(${index})">
+                        Remover
+                    </button>
+
+                </div>
+
+            `).join("");
+        }
+
+        function atualizarSimulados() {
+
+            const lista = document.getElementById("listaSimulados");
+
+            if (!dados.simulados.length) {
+                lista.innerHTML = `<div class="vazio">Nenhum simulado registrado.</div>`;
+                return;
+            }
+
+            lista.innerHTML = dados.simulados.map((item, index) => {
+
+                const porcentagem =
+                    Math.round((item.acertos / item.questoes) * 100);
+
+                return `
+
+                    <div class="item">
+
+                        <div class="item-info">
+                            <strong>${item.nome}</strong>
+                            <small>
+                                item.acertos/{item.questoes} acertos
+                                • ${porcentagem}%
+                                • ${item.data}
+                            </small>
+                        </div>
+
+                        <button class="botao botao-perigo" onclick="removerSimulado(${index})">
+                            Remover
+                        </button>
+
+                    </div>
+
+                `;
+
+            }).join("");
+        }
+
+        function atualizarEstatisticas() {
+
+            const totalQuestoes = dados.questoes.reduce(
+                (total, item) => total + item.quantidade,
+                0
+            );
+
+            const totalTarefas =
+                dados.planos.length +
+                dados.revisoes.length;
+
+            const progresso = Math.min(
+                100,
+                Math.round(
+                    (
+                        (dados.horas / Math.max(dados.metas.horas, 1)) +
+                        (totalQuestoes / Math.max(dados.metas.questoes, 1)) +
+                        (dados.redacoes.length / Math.max(dados.metas.redacoes, 1)) +
+                        (dados.revisoes.length / Math.max(dados.metas.revisoes, 1))
+                    ) / 4 * 100
+                )
+            );
+
+            document.getElementById("horasInicio").innerText =
+                dados.horas.toFixed(1) + "h";
+
+            document.getElementById("tarefasInicio").innerText =
+                totalTarefas;
+
+            document.getElementById("questoesInicio").innerText =
+                totalQuestoes;
+
+            document.getElementById("progressoInicio").innerText =
+                progresso + "%";
+
+            document.getElementById("barraInicio").style.width =
+                progresso + "%";
+
+            document.getElementById("progressoHoras").innerText =
+                dados.horas.toFixed(1) + "h";
+
+            document.getElementById("progressoQuestoes").innerText =
+                totalQuestoes;
+
+            document.getElementById("progressoRedacoes").innerText =
+                dados.redacoes.length;
+
+            document.getElementById("progressoSimulados").innerText =
+                dados.simulados.length;
+
+            document.getElementById("barraProgresso").style.width =
+                progresso + "%";
+
+            document.getElementById("textoProgresso").innerText =
+                progresso + "%";
+
+            document.getElementById("metaHoras").value =
+                dados.metas.horas;
+
+            document.getElementById("metaQuestoes").value =
+                dados.metas.questoes;
+
+            document.getElementById("metaRedacoes").value =
+                dados.metas.redacoes;
+
+            document.getElementById("metaRevisoes").value =
+                dados.metas.revisoes;
+        }
+
+        function atualizarTudo() {
+
+            atualizarPerfil();
+            atualizarPlano();
+            atualizarAgenda();
+            atualizarQuestoes();
+            atualizarRevisoes();
+            atualizarResumos();
+            atualizarFlashcards();
+            atualizarRedacoes();
+            atualizarSimulados();
+            atualizarEstatisticas();
+
+        }
+
+        atualizarTudo();
+        atualizarTimer();
+        atualizarContador();
+
+    </script>
+
+</body>
+</html>
